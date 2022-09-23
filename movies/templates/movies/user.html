@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {%block content%}
+<div class="container-fluid">
+  <div class="row justify-content-between">
+    <div
+      class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column"
+    >
+      <div
+        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
+      >
+        <div class="h-100 p-2">
+          <h5 class="mb-0 text-white lh-100">Saved Movies</h5>
+        </div>
+      </div>
+      {% for movie in saved_movies%}
+        {% include 'movies/movie-card.html' with movie=movie%}
+      {% endfor %}
+    </div>
+    <div
+      class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column"
+    >
+      <div
+        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
+      >
+        <div class="h-100 p-2">
+          <h5 class="mb-0 text-white lh-100">Watched Movies</h5>
+        </div>
+      </div>
+      {% for movie in watched_movies%}
+        {% include 'movies/movie-card.html' with movie=movie%}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{%endblock content%}

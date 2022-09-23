@@ -1,0 +1,14 @@
+{% load static%} 
+{% for movie in recommended %}
+<div class="col-sm-6 my-1">
+    {% include 'movies/movie-card.html' with movie=movie rank=forloop.counter%}
+    <div class="list-group list-group-horizontal text-center">
+        {% for user in active_users %}
+            <div 
+            class="flex-fill list-group-item {% if movie in user.saved_movies.all %} list-group-item-success{%endif%}">
+                {{user.get_short_name}}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}

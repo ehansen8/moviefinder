@@ -1,0 +1,63 @@
+<div id="movie-{{movie.pk}}" class="card shadow">
+  {%load static%}
+  {%load movie_extras %}
+
+  {% user_has_saved user_id=user.pk movie=movie as has_saved %}
+  {% user_has_watched user_id=user.pk movie=movie as has_watched %}
+
+  <img class="card-img" src="{{movie.backdrop}}" alt="Card image" />
+  <div class="card-img-overlay d-flex flex-column justify-content-end p-0">
+    <div class="flex-grow-1 position-relative">
+      <!-- Movie Card Link to Movie detail modal-->
+      <a href="#" data-bs-toggle="modal" data-bs-target="#movie-{{movie.id}}-modal"
+        class="stretched-link"></a>
+    </div>
+    <div class="container movie-card-gradient pe-0">
+      <div class="continaer d-flex flex-row">
+        <div class="flex-grow-1">
+          <small
+            class="card-text text-white">{{movie.rating|floatformat:0}}%</small>
+          <h6 class="card-title text-white m-0 p-0">
+            {% if rank%}{{rank}}. {% endif %}{{movie.title}}
+          </h6>
+          <small class="card-text text-white">
+            {{movie.genres.all| slice:":2" | join:", "}} &bull; {{movie.year}}
+          </small>
+        </div>
+        <div class="btn-group h-50 align-self-end">
+
+          <!-- Save Movie Button-->
+          <button type="button"
+            class="btn btn-sm btn-outline-light save-movie {% if has_saved %}active{% endif %}"
+            data-url="{% url 'movies:bookmark' %}"
+            data-movie-id="{{movie.pk}}">
+            <i class="bi bi-bookmark"> </i>
+          </button>
+          <div class="btn-group dropdown-center rate-movie"
+            data-url="{% url 'movies:rate' %}" data-movie-id="{{movie.pk}}">
+
+            <!-- Rate Movie Button-->
+            <button type="button"
+              class="btn btn-sm btn-outline-light caret-off dropdown-toggle {% if has_watched %}active{% endif %}"
+              data-bs-toggle="dropdown" data-bs-offset="0,10">
+              <i class="bi bi-check2"></i>
+            </button>
+            <div class="dropdown-menu p-0">
+              <div class="btn-group">
+                <a class="btn btn-outline-danger dropdown-item" href="#"
+                  data-rating="1">Awful</a>
+                <a class="btn btn-outline-warning dropdown-item" href="#"
+                  data-rating="2">Meh</a>
+                <a class="btn btn-outline-success dropdown-item" href="#"
+                  data-rating="3">Good</a>
+                <a class="btn btn-outline-primary dropdown-item" href="#"
+                  data-rating="4">Amazing</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'movies/movie-detail-modal.html' %}

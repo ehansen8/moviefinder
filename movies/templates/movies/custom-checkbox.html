@@ -1,0 +1,9 @@
+{% load crispy_forms_field %}
+
+<div class="mb-3">
+  {% crispy_field field 'class' 'form-check-input'%}
+  <label for=" field.id_for_label" class="form-check-label">
+    {{field.label}}
+  </label>
+  <small class="w-100"> <br/> {{field.help_text}} </small>
+</div>

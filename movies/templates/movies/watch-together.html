@@ -1,0 +1,59 @@
+{% extends 'base.html' %} {%block content%} {% csrf_token %}
+<div class="container-fluid d-flex flex-row justify-content-between">
+  <!-- This is the Recommendation Column-->
+  <div
+    class="mt-2 col-sm-9 border-right border-2 border-dark d-flex flex-column me-2"
+  >
+    <div
+      class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
+    >
+      <div class="h-100 p-2">
+        <h5 class="mb-0 text-white lh-100">
+          Recommendations
+          <a
+            href="#"
+            class="link-light"
+            data-bs-toggle="modal"
+            data-bs-target="#filter-modal"
+          >
+            <i class="bi bi-gear"></i>
+          </a>
+          {% include 'movies/filter-form-modal.html'%}
+        </h5>
+      </div>
+    </div>
+    <div
+      id="recommendations"
+      class="d-flex flex-row flex-wrap justify-content-start"
+    >
+      <!-- requires recommended and active_users-->
+      {% include 'movies/recommended-movie-list.html'%}
+    </div>
+  </div>
+
+  <!-- This is the Friends Column-->
+  <div
+    class="mt-2 col-sm-3 border-left border-2 border-dark d-flex flex-column"
+  >
+    <div
+      class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
+    >
+      <div class="h-100 p-2">
+        <h5 class="mb-0 text-white lh-100">Friends</h5>
+      </div>
+    </div>
+    <div id="friend-list" class="btn-group-vertical text-center mt-1">
+      {% for friend in friends %}
+      <a
+        class="btn btn-outline-dark"
+        href="#"
+        data-url="{% url 'movies:watch_together' %}"
+        data-friend-id="{{friend.pk}}"
+      >
+        {{friend.get_full_name}}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{%endblock content%}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {%block content%}
+<div class="container-fluid">
+  <div class="row justify-content-between">
+
+    <!-- This is the Watchlist Column-->
+    <div
+      class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column">
+      <div
+        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+        <div class="h-100 p-2 ">
+          <h5 class="mb-0 text-white lh-100">Watchlist</h5>
+        </div>
+      </div>
+      <div id="watchlist" data-url={% url 'movies:bookmark' %}>
+        {% for movie in saved_movies%}
+        {% include 'movies/movie-card.html' with movie=movie%}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- This is the Movie Search Column-->
+    <div class="mt-2 col d-flex flex-column">
+      <div>
+        <form id="movie-search-form" method="POST"
+          data-action={% url 'movies:search' %} class="d-flex"
+          style="height: 40px">
+          {% csrf_token %}
+          <div class="input-group">
+            <span class="input-group-text" id="basic-addon1"><i
+                class="bi bi-search"></i></span>
+            <input class="form-control bg-light text-dark" type="search"
+              name="search" color="dark" placeholder="Search for a movie"
+              aria-label="Search" style="height: 40px" />
+          </div>
+          <button class="btn btn-outline-dark" type="submit"
+            value="Post">Search</button>
+        </form>
+      </div>
+      <div id="search-results">
+      </div>
+    </div>
+
+    <!-- This is the Friends Column-->
+    <div
+      class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column">
+      <div
+        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+        <div class="h-100 p-2">
+          <h5 class="mb-0 text-white lh-100">Friends</h5>
+        </div>
+      </div>
+      <div class="btn-group-vertical text-center mt-1">
+        {% for friend in friends %}
+        <a href="{% url 'movies:user' user_id=friend.id  %}"
+          class="btn btn-outline-dark ">
+          {{friend.get_full_name}}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock content%}
