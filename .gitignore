@@ -1,7 +1,7 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__/*
 *.py[cod]
-static/*
 staticfiles/*
 db.sqlite3
 main/secrets.py
+*.pyc

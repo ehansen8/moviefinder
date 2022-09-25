@@ -1,3 +1,5 @@
 {% for movie in movies%}
+<div class="my-1">
     {% include 'movies/movie-card.html' with movie=movie%}
+</div>
 {% endfor %}
