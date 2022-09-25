@@ -49,7 +49,7 @@ def search(request: HttpRequest) -> HttpResponse:
         data = json.load(request)
         search_query = data["search"]
 
-        movies = MovieBuilder(search_query, 2).saveMovies()
+        movies = MovieBuilder(search_query, max_results=10, new_results=2).saveMovies()
 
         # movie-card only requires the model: movie for context
         context = {"movies": movies}
@@ -59,9 +59,11 @@ def search(request: HttpRequest) -> HttpResponse:
         return HttpResponseRedirect(reverse("movies:dashboard"))
 
 
-''' Adds or removes a bookmark from a movie
+""" Adds or removes a bookmark from a movie
     Also removes a rating if one exists    
-'''
+"""
+
+
 def bookmark(request: HttpRequest) -> HttpResponse:
     user = request.user
     if request.method == "POST":
@@ -74,11 +76,9 @@ def bookmark(request: HttpRequest) -> HttpResponse:
             movie.savers.remove(user)
         else:
             movie.savers.add(user)
-        
+
         movie.watchers.remove(user)
 
-
-        
     saved_movies = user.saved_movies.all().order_by("-saves__date_saved")
 
     # movie-card only requires the model: movie for context
@@ -131,13 +131,12 @@ def watch_together(request: HttpRequest) -> HttpResponse:
 def rate(request: HttpRequest) -> HttpResponse:
     user = request.user
     if request.method == "POST":
-        data = json.load(request)    
-        movie_id = data['movie_id']
-        rating = data['rating']
+        data = json.load(request)
+        movie_id = data["movie_id"]
+        rating = data["rating"]
 
         user.saved_movies.remove(movie_id)
         movie = Movie.objects.get(pk=movie_id)
-        user.ratings.create(movie=movie,rating=rating)
-
+        user.ratings.create(movie=movie, rating=rating)
 
     return HttpResponse("")

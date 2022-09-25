@@ -27,13 +27,15 @@ class MovieBuilder:
         "Ratings": "rotten_tomatoes_rating",
     }
 
+    """Result length is the # of reuslts to return that are not already in the local DB
+    """
 
-    '''Result length is the # of reuslts to return that are not already in the local DB
-    '''
-    def __init__(self, search_query, result_length=2) -> None:
+    def __init__(self, search_query, max_results=5, new_results=2) -> None:
 
         results = self.tmdbSearchQuery(search_query)["results"]
-        self.result_length = result_length
+        self.new_results = new_results
+        self.max_results = max_results
+
         self.newly_added = 0
         if len(results) == 0:
             self.result_list = None
@@ -45,9 +47,18 @@ class MovieBuilder:
             return None
 
         movie_list = []
-        for r in self.result_list:
+
+        # Only Return Max Results OR new_results
+        # whichever is hit first
+        # TODO - Spawn off a Task to handle saving all the results
+        for i, r in enumerate(self.result_list):
+
+            if i >= self.max_results:
+                break
+
             movie_list.append(self.saveMovie(r))
-            if self.newly_added >= self.result_length: break
+            if self.newly_added >= self.new_results:
+                break
 
         return movie_list
 
@@ -69,7 +80,7 @@ class MovieBuilder:
         credits = details["credits"]
 
         providers = []
-        res = details["watch/providers"]['results']
+        res = details["watch/providers"]["results"]
         if res and "US" in res:
             providers = details["watch/providers"]["results"]["US"]
 
@@ -155,7 +166,7 @@ class MovieBuilder:
                     tmdb_id=actor["id"],
                 )
                 if path := actor["profile_path"]:
-                    a.image_url=self.BASE_URL + path
+                    a.image_url = self.BASE_URL + path
                 a.save()
                 movie.actors.add(a)
             else:
