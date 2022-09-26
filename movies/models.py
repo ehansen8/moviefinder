@@ -10,6 +10,7 @@ from main.models import User
 
 # Create your models here.
 
+
 class Director(models.Model):
     name = models.CharField(max_length=255)
     tmdb_id = models.IntegerField(blank=True)
@@ -17,6 +18,13 @@ class Director(models.Model):
     user_saves = models.ManyToManyField(
         User, related_name="saved_directors", blank=True
     )
+
+    @property
+    def image(self):
+        if self.image_url:
+            return self.image_url
+
+        return "https://via.placeholder.com/1000x1500"
 
     def __str__(self):
         return self.name
@@ -27,6 +35,13 @@ class Actor(models.Model):
     tmdb_id = models.IntegerField(blank=True)
     image_url = models.URLField(blank=True)
 
+    @property
+    def image(self):
+        if self.image_url:
+            return self.image_url
+
+        return f"https://via.placeholder.com/240x360?text=No+Image"
+
     def __str__(self):
         return self.name
 
@@ -34,27 +49,19 @@ class Actor(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=255)
     tmdb_id = models.IntegerField(blank=True)
+
     def __str__(self):
         return self.name
+
 
 class WatchProvider(models.Model):
     name = models.CharField(max_length=255)
     tmdb_id = models.IntegerField(blank=True)
     logo_url = models.URLField(blank=True)
-    
+
     def __str__(self):
         return self.name
 
-
-""" Thought about coalescing imdb & rotten tomatoes in case one was empty
-    but instead I'm just going to save a generic rating as first totatoes then a normalized imdb
-
-class MovieManager(models.Manager):
-    def get_queryset(self) -> QuerySet:
-        qs = super(MovieManager, self).get_queryset()
-        qs.annotate()
-        return  
-"""
 
 class Movie(models.Model):
     # Non Related Data
@@ -68,9 +75,9 @@ class Movie(models.Model):
     country = models.CharField(max_length=255, default="United States")
     imdb_rating = models.FloatField(blank=True, null=True)
     rotten_tomatoes_rating = models.FloatField(blank=True, null=True)
-    
+
     # First tomatoes else imdb
-    rating = models.FloatField(blank=True,null=True)
+    rating = models.FloatField(blank=True, null=True)
 
     poster_url = models.URLField(blank=True, null=True)
     backdrop_url = models.URLField(blank=True, null=True)
@@ -82,7 +89,9 @@ class Movie(models.Model):
 
     actors = models.ManyToManyField(Actor, related_name="movies", blank=True)
     genres = models.ManyToManyField(Genre, related_name="movies", blank=True)
-    watch_providers = models.ManyToManyField(WatchProvider, related_name="movies", blank=True)
+    watch_providers = models.ManyToManyField(
+        WatchProvider, related_name="movies", blank=True
+    )
 
     # User Related Data
     savers = models.ManyToManyField(
@@ -93,7 +102,11 @@ class Movie(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.rating = self.rotten_tomatoes_rating if self.rotten_tomatoes_rating else self.imdb_rating*10
+        self.rating = (
+            self.rotten_tomatoes_rating
+            if self.rotten_tomatoes_rating
+            else self.imdb_rating * 10
+        )
         super(Movie, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -102,13 +115,13 @@ class Movie(models.Model):
     @property
     def year(self):
         return self.release_date.year
-    
+
     @property
     def backdrop(self):
         if self.backdrop_url:
             return self.backdrop_url
 
-        return 'https://www.urbansplash.co.uk/images/placeholder-16-9.jpg' 
+        return "https://www.urbansplash.co.uk/images/placeholder-16-9.jpg"
 
 
 class SavedMovie(models.Model):
@@ -123,11 +136,15 @@ class SavedMovie(models.Model):
 class WatchedMovie(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
-    rating = models.IntegerField(
-        validators=[MaxValueValidator(4), MinValueValidator(1)], blank=True
+
+    class Rating(models.IntegerChoices):
+        Awful = 1
+        Meh = 2
+        Good = 3
+        Amazing = 4
+
+    rating = models.IntegerField(choices=Rating.choices, blank=True
     )
 
     def __str__(self):
         return f"{self.user.get_full_name()}: {self.movie.title} - {self.rating} stars"
-
-

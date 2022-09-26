@@ -1,0 +1,11 @@
+<!-- context: movie -->
+<div class="position-relative">
+    <img class="w-100 rounded "
+         src="{{movie.poster_url}}"
+         alt="">
+    <a href="#"
+       data-bs-toggle="modal"
+       data-bs-target="#movie-{{movie.id}}-modal"
+       class="stretched-link"></a>
+</div>
+{% include 'movies/movie-detail-modal.html' %}
