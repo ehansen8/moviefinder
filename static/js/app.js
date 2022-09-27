@@ -7,14 +7,6 @@ if (document.querySelector('#movie-search-form')) {
     .querySelector('#movie-search-form')
     .addEventListener('submit', post_form)
 
-  // We don't want clicking input to trigger dropdown close
-  document
-    .querySelector('#search-btn-group')
-    .addEventListener('show.bs.dropdown', (e) => {
-      if (!e.target.value) {
-        e.preventDefault()
-      }
-    })
 
   document
     .querySelector('#search-btn-group')

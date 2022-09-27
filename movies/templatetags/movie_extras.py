@@ -15,6 +15,8 @@ def user_has_watched(user_id: int, movie: Movie) -> bool:
 
 @register.filter
 def divide(value, arg):
+    if not value:
+        return None
     try:
         return int(value) / int(arg)
     except (ValueError, ZeroDivisionError):

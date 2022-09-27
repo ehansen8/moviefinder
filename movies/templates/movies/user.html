@@ -1,34 +1,73 @@
 {% extends 'base.html' %} {%block content%}
+<!-- context: saved_movies, ratings(watched_movies manager) -->
 <div class="container-fluid">
-  <div class="row justify-content-between">
-    <div
-      class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column"
-    >
-      <div
-        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
-      >
-        <div class="h-100 p-2">
-          <h5 class="mb-0 text-white lh-100">Saved Movies</h5>
+  <ul class="nav nav-tabs m-2">
+    <li class="nav-item">
+      <a class="nav-link active"
+         aria-current="page"
+         href="#"
+         data-bs-toggle="tab"
+         data-bs-target="#saved-tab-content">Saved</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         href="#"
+         data-bs-toggle="tab"
+         data-bs-target="#watched-tab-content">Watched</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         href="#"
+         data-bs-toggle="tab"
+         data-bs-target="#following-tab-content">Following</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div id="saved-tab-content"
+         class="tab-pane fade show active"
+         id="home"
+         role="tabpanel"
+         aria-labelledby="home-tab">
+      <div class="d-flex justify-content-start flex-wrap">
+        {% for movie in saved_movies %}
+        <div class="col-lg-2 col-3 p-1">
+          {% include 'movies/movie-poster-with-modal.html' %}
+          <div class="d-flex justify-content-between h6">
+            <span class="text-truncate">{{ movie.title }}</span>
+            <span class="ms-2"
+                  style="color: #07a607">{{ movie.rating|floatformat:0 }}%</span>
+          </div>
         </div>
+        {% endfor %}
       </div>
-      {% for movie in saved_movies%}
-        {% include 'movies/movie-card.html' with movie=movie%}
-      {% endfor %}
     </div>
-    <div
-      class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column"
-    >
-      <div
-        class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm"
-      >
-        <div class="h-100 p-2">
-          <h5 class="mb-0 text-white lh-100">Watched Movies</h5>
+    <div id="watched-tab-content"
+         class="tab-pane fade"
+         id="profile"
+         role="tabpanel"
+         aria-labelledby="profile-tab">
+      <div class="d-flex justify-content-start flex-wrap">
+        {% for rating in ratings %}
+        {% with movie=rating.movie r=rating.rating %}
+        <div class="col-lg-2 col-3 px-1 mb-1">
+          {% include 'movies/movie-poster-with-modal.html' %}
+          <div class="d-flex flex-column h6">
+            <div class="text-truncate">{{ movie.title }}</div>
+            <div
+                 class="text-{% if r == 1 %}danger{% elif r == 2%}warning{% elif r == 3%}success{% else %}primary{% endif %}">
+              {{ rating.get_rating_display}}
+            </div>
+          </div>
         </div>
+        {% endwith %}
+        {% endfor %}
       </div>
-      {% for movie in watched_movies%}
-        {% include 'movies/movie-card.html' with movie=movie%}
-      {% endfor %}
     </div>
+    <div id="following-tab-content"
+         class="tab-pane fade"
+         id="contact"
+         role="tabpanel"
+         aria-labelledby="contact-tab">...</div>
   </div>
 </div>
 {%endblock content%}

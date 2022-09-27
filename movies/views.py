@@ -11,6 +11,7 @@ from .models import Movie, Genre
 from movies.builders import MovieBuilder
 from movies.forms import WatchTogetherFilterForm
 from .helpers import filter_watch_together
+from django.db.models import Q, F
 
 # Create your views here.
 def dashboard(request: HttpRequest) -> HttpResponse:
@@ -39,8 +40,8 @@ def user(request: HttpRequest, user_id: int) -> HttpResponse:
 
     user: User = User.objects.get(pk=user_id)
     saved_movies = user.saved_movies.all()
-    watched_movies = user.watched_movies.all()
-    context = {"saved_movies": saved_movies, "watched_movies": watched_movies}
+    ratings = user.ratings.all()
+    context = {"saved_movies": saved_movies, "ratings": ratings}
     return render(request, "movies/user.html", context=context)
 
 
@@ -102,7 +103,7 @@ def watch_together(request: HttpRequest) -> HttpResponse:
 
         movies = Movie.objects.filter(q_filter)
         movies = movies.filter(savers__pk__in=ids)
-        movies = movies.annotate(count=Count("savers"))
+        movies = movies.annotate(count=Count("savers", distinct=True))
         movies = movies.order_by("-count", "-rating")
 
         active_users = User.objects.filter(pk__in=ids)
