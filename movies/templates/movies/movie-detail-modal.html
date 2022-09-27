@@ -62,7 +62,15 @@
                         </div>
                     </div>
                     <hr class="col-12">
+                    
+                    <!-- Production Companies -->
+                    <h6 class="col-sm-12 m-1">Production Companies</h6>
+                    <div class="col-sm-12 justify-content-center">
+                        {{movie.production_companies.all| join:", "}}
+                    </div>
+                    <hr class="col-12">
 
+                    
                     <!-- Director / Actors-->
                     <div class="swiper">
 
@@ -105,13 +113,9 @@
                         <div class="swiper-button-prev"></div>
                         <div class="swiper-button-next"></div>
                     </div>
-
-
-
-
                     <hr class="col-12">
 
-                    <!-- Director / Actors -->
+                    <!-- Genres -->
                     <h6 class="col-sm-12 m-0">Genres</h6>
                     <div class="col-sm-12"> {{movie.genres.all| join:", "}}
                     </div>

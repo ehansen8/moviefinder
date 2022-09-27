@@ -78,6 +78,7 @@ class MovieBuilder:
         details = self.tmdbDetailQuery(tmdb_id)
         genres = details["genres"]
         credits = details["credits"]
+        prod_companies = details["production_companies"]
 
         providers = []
         res = details["watch/providers"]["results"]
@@ -96,7 +97,10 @@ class MovieBuilder:
                 value = f"{hours}:{minutes}"
 
             if model_key == "release_date":
-                value = datetime.strptime(value, "%Y-%m-%d")
+                if value:
+                    value = datetime.strptime(value, "%Y-%m-%d")
+                else:
+                    value = None
 
             if model_key in {"poster_url", "backdrop_url"} and value:
                 value = self.BASE_URL + value
@@ -104,27 +108,31 @@ class MovieBuilder:
             setattr(movie, model_key, value)
 
         # OMDB details
-        details = self.omdbDetailQuery(movie.imdb_id)
-        for obj_key, model_key in self.omdb_field_mappings.items():
-            value = details[obj_key]
+        if movie.imdb_id:
+            details = self.omdbDetailQuery(movie.imdb_id)
+            for obj_key, model_key in self.omdb_field_mappings.items():
+                value = details[obj_key]
 
-            if model_key == "imdb_rating":
-                value = float(value)
+                if model_key == "imdb_rating":
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        value = None
 
-            found = False
-            if model_key == "rotten_tomatoes_rating":
-                for e in details[obj_key]:
-                    if e["Source"] == "Rotten Tomatoes":
-                        value = int(e["Value"].strip("%"))
-                        found = True
-                        break
-                    continue
+                found = False
+                if model_key == "rotten_tomatoes_rating":
+                    for e in details[obj_key]:
+                        if e["Source"] == "Rotten Tomatoes":
+                            value = int(e["Value"].strip("%"))
+                            found = True
+                            break
+                        continue
 
-                # if not found
-                if not found:
-                    value = None
+                    # if not found
+                    if not found:
+                        value = None
 
-            setattr(movie, model_key, value)
+                setattr(movie, model_key, value)
 
         # Parse out director
         for member in credits["crew"]:
@@ -139,16 +147,14 @@ class MovieBuilder:
                     image_url=self.BASE_URL + member["profile_path"],
                 )
                 d.save()
-                movie.director = d
-            else:
-                movie.director = d
             finally:
+                movie.director = d
                 break
 
         # All necessary movie details are stored and movie can be saved
         movie.save()
 
-        # Now parse genres, cast, and providers
+        # Now parse genres, cast, production companies and watch providers
         for genre in genres:
             try:
                 g = Genre.objects.get(tmdb_id=genre["id"])
@@ -168,9 +174,21 @@ class MovieBuilder:
                 if path := actor["profile_path"]:
                     a.image_url = self.BASE_URL + path
                 a.save()
+            finally:
                 movie.actors.add(a)
-            else:
-                movie.actors.add(a)
+
+        for comp in prod_companies:
+            try:
+                c = ProductionCompany.objects.get(tmdb_id=comp["id"])
+            except ProductionCompany.DoesNotExist:
+                c = ProductionCompany(
+                    name=comp["name"],
+                    tmdb_id=comp["id"],
+                    logo_url=self.BASE_URL + comp["logo_path"],
+                )
+                c.save()
+            finally:
+                movie.production_companies.add(c)
 
         if "flatrate" in providers:
             for provider in providers["flatrate"]:

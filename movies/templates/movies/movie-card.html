@@ -16,7 +16,13 @@
       <div class="continaer d-flex flex-row">
         <div class="flex-grow-1">
           <small
-            class="card-text text-white">{{movie.rating|floatformat:0}}%</small>
+            class="card-text text-white">
+            {% if movie.rating %}
+              {{movie.rating|floatformat:0}}%
+            {% else %}
+              NR
+            {% endif %}
+          </small>
           <h6 class="card-title text-white m-0 p-0">
             {% if rank%}{{rank}}. {% endif %}{{movie.title}}
           </h6>
@@ -39,7 +45,7 @@
             <!-- Rate Movie Button-->
             <button type="button"
               class="btn btn-sm btn-outline-light caret-off dropdown-toggle {% if has_watched %}active{% endif %}"
-              data-bs-toggle="dropdown" data-bs-offset="0,10">
+              data-bs-toggle="dropdown" data-bs-offset="0,10" >
               <i class="bi bi-check2"></i>
             </button>
             <div class="dropdown-menu p-0">
