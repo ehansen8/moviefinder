@@ -37,6 +37,7 @@ class ProductionCompany(models.Model):
     user_saves = models.ManyToManyField(
         User, related_name="saved_production_companies", blank=True
     )
+    BASE_URL = "https://www.themoviedb.org/t/p/original"
 
     @property
     def image(self):
@@ -48,11 +49,16 @@ class ProductionCompany(models.Model):
     def __str__(self):
         return self.name
 
+    def set_url(self, relative_url):
+        if relative_url:
+            self.logo_url = self.BASE_URL + relative_url
+
 
 class Actor(models.Model):
     name = models.CharField(max_length=255)
     tmdb_id = models.IntegerField(blank=True)
     image_url = models.URLField(blank=True)
+    BASE_URL = "https://www.themoviedb.org/t/p/original"
 
     @property
     def image(self):
@@ -63,6 +69,10 @@ class Actor(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def set_url(self, relative_url):
+        if relative_url:
+            self.image_url = self.BASE_URL + relative_url
 
 
 class Genre(models.Model):
@@ -77,10 +87,14 @@ class WatchProvider(models.Model):
     name = models.CharField(max_length=255)
     tmdb_id = models.IntegerField(blank=True)
     logo_url = models.URLField(blank=True)
+    BASE_URL = "https://www.themoviedb.org/t/p/original"
 
     def __str__(self):
         return self.name
 
+    def set_url(self, relative_url):
+        if relative_url:
+            self.logo_url = self.BASE_URL + relative_url
 
 class Movie(models.Model):
     # Non Related Data

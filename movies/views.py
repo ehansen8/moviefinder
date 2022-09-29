@@ -46,11 +46,12 @@ def user(request: HttpRequest, user_id: int) -> HttpResponse:
 
 
 def search(request: HttpRequest) -> HttpResponse:
+    
     if request.method == "POST":
         data = json.load(request)
         search_query = data["search"]
 
-        movies = MovieBuilder(search_query, max_results=10, new_results=2).saveMovies()
+        movies = MovieBuilder(search_query, max_results=5).saveMovies()
 
         # movie-card only requires the model: movie for context
         context = {"movies": movies}
