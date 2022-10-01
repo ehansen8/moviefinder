@@ -13,14 +13,14 @@
         class="stretched-link"></a>
     </div>
     <div class="container movie-card-gradient pe-0">
-      <div class="continaer d-flex flex-row">
+      <div class="d-flex flex-row">
         <div class="flex-grow-1">
           <small
             class="card-text text-white">
             {% if movie.rating %}
               {{movie.rating|floatformat:0}}%
             {% else %}
-              NR
+              N/A
             {% endif %}
           </small>
           <h6 class="card-title text-white m-0 p-0">

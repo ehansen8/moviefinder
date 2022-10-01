@@ -12,6 +12,7 @@ from movies.builders import MovieBuilder
 from movies.forms import WatchTogetherFilterForm
 from .helpers import filter_watch_together
 from django.db.models import Q, F
+from .selectors import *
 
 # Create your views here.
 def dashboard(request: HttpRequest) -> HttpResponse:
@@ -19,12 +20,26 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
 
+
+    upcoming_movies = Movie.objects.filter(is_upcoming=True)
+    now_playing_movies = Movie.objects.filter(is_now_playing=True)
+    trending_movies = Movie.objects.filter(is_trending=True)
+
     # Get user saved movies
-    saved_movies = user.saved_movies.all().order_by("-saves__date_saved")
-    context = {"friends": friends, "saved_movies": saved_movies, "nbar": "dashboard"}
+    saved_movies = user.saved_movies.all().order_by("-saves__date_saved")[:5]
+    watched_ratings = user.ratings.all().order_by("-date_saved")[:5]
+    context = {
+        "friends": friends,
+        "trending_movies": trending_movies,
+        "upcoming_movies": upcoming_movies,
+        "now_playing_movies": now_playing_movies,
+        "saved_movies": saved_movies,
+        "watched_ratings": watched_ratings,
+        "nbar": "dashboard",
+    }
     return render(
         request,
-        "movies/dashboard.html",
+        "movies/dashboard-2.html",
         context=context,
     )
 
@@ -46,7 +61,7 @@ def user(request: HttpRequest, user_id: int) -> HttpResponse:
 
 
 def search(request: HttpRequest) -> HttpResponse:
-    
+
     if request.method == "POST":
         data = json.load(request)
         search_query = data["search"]

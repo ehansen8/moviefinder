@@ -66,7 +66,6 @@ class MovieBuilder:
             movie = Movie.objects.get(tmdb_id=tmdb_id)
         except Movie.DoesNotExist:
 
-            #self.newly_added += 1
             movie = MovieBuilder.getMovieDetails(tmdb_id)
 
         return movie.pk

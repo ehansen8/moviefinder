@@ -1,8 +1,5 @@
-from multiprocessing import shared_memory
-from os import stat
-from celery import shared_task, group
+from celery import shared_task
 from .models import *
-import time
 
 
 # Idea is to re-query the external APIs to get updated info
@@ -55,23 +52,9 @@ def save_actors_to_movie(movie_pk, actors):
 
 @shared_task
 def save_genres_to_movie(movie_pk, genres):
-    to_create = []
-    to_set = []
+    id_list = [x['id'] for x in genres]
     movie = Movie.objects.get(pk=movie_pk)
-    for e in genres:
-        try:
-            g = Genre.objects.get(tmdb_id=e["id"])
-            to_set.append(g)
-        except Genre.DoesNotExist:
-            g = Genre(
-                name=e["name"],
-                tmdb_id=e["id"],
-            )
-            g.set_url(e["profile_path"])
-            to_create.append(g)
-
-    to_set.extend(Genre.objects.bulk_create(to_create))
-    movie.genres.set(to_set)
+    movie.genres.set(Genre.objects.filter(tmdb_id__in=id_list))
 
 
 @shared_task
@@ -121,3 +104,9 @@ def saveMovie_task(movie_obj):
     from .builders import MovieBuilder
 
     return MovieBuilder.saveMovie(movie_obj)
+
+@shared_task
+def save_movie_from_id_task(tmdb_id: int):
+    from .services import save_movie_from_id
+
+    return save_movie_from_id(tmdb_id)

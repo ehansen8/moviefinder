@@ -1,6 +1,17 @@
 let FILTER_FORM
 let FRIEND_IDS = []
 const reload_subscribers = []
+let holdTime = null
+let holdStart = null
+
+document
+  .querySelector('#main')
+  .addEventListener('show.bs.modal', (e) => {
+    if (holdTime > 150) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  })
 
 if (document.querySelector('#movie-search-form')) {
   document
@@ -15,7 +26,7 @@ if (document.querySelector('#movie-search-form')) {
       if (target != null && target.id == 'search-button') {
         e.preventDefault()
       }
-      
+
     })
 
   document
@@ -64,16 +75,21 @@ let swiper = new Swiper('.swiper', {
 
   slidesPerView: "5.5",
   //spaceBetween: 20,
-
-  // Navigation arrows
-  navigation: {
-    nextEl: '.swiper-button-next',
-    prevEl: '.swiper-button-prev',
+  preventClicks: false,
+  preventClicksPropagation: false,
+  onAny(e) {
+    if (e == "touchStart") {
+      holdStart = Date.now()
+    }
+    if (e == 'touchEnd') {
+      holdTime = Date.now() - holdStart
+    }
   },
 
   // And if we need scrollbar
   scrollbar: {
     el: '.swiper-scrollbar',
+    draggable: true,
   },
 });
 
@@ -91,16 +107,13 @@ function initSwiper() {
 
     slidesPerView: "5.5",
     //spaceBetween: 20,
-
-    // Navigation arrows
-    navigation: {
-      nextEl: '.swiper-button-next',
-      prevEl: '.swiper-button-prev',
-    },
+    preventClicks: false,
+    preventClicksPropagation: false,
 
     // And if we need scrollbar
     scrollbar: {
       el: '.swiper-scrollbar',
+      draggable: true,
     },
   });
 }

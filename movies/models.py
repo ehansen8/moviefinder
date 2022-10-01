@@ -18,6 +18,7 @@ class Director(models.Model):
     user_saves = models.ManyToManyField(
         User, related_name="saved_directors", blank=True
     )
+    BASE_URL = "https://www.themoviedb.org/t/p/original"
 
     @property
     def image(self):
@@ -28,6 +29,10 @@ class Director(models.Model):
 
     def __str__(self):
         return self.name
+
+    def set_url(self, relative_url):
+        if relative_url:
+            self.image_url = self.BASE_URL + relative_url
 
 
 class ProductionCompany(models.Model):
@@ -69,7 +74,7 @@ class Actor(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def set_url(self, relative_url):
         if relative_url:
             self.image_url = self.BASE_URL + relative_url
@@ -96,6 +101,7 @@ class WatchProvider(models.Model):
         if relative_url:
             self.logo_url = self.BASE_URL + relative_url
 
+
 class Movie(models.Model):
     # Non Related Data
     title = models.CharField(max_length=255)
@@ -118,8 +124,16 @@ class Movie(models.Model):
     # First tomatoes else imdb
     rating = models.FloatField(blank=True, null=True)
 
+    BASE_URL = "https://www.themoviedb.org/t/p/original"
     poster_url = models.URLField(blank=True, null=True)
     backdrop_url = models.URLField(blank=True, null=True)
+
+
+    # Indexing Data
+    is_trending = models.BooleanField(default=False, blank=True)
+    is_popular = models.BooleanField(default=False, blank=True)
+    is_upcoming = models.BooleanField(default=False, blank=True)
+    is_now_playing = models.BooleanField(default=False, blank=True)
 
     # Related Data
     director = models.ForeignKey(
@@ -160,6 +174,14 @@ class Movie(models.Model):
             return self.release_date.year
         return ""
 
+    def set_poster_url(self, relative_url):
+        if relative_url:
+            self.poster_url = self.BASE_URL + relative_url
+
+    def set_backdrop_url(self, relative_url):
+        if relative_url:
+            self.backdrop_url = self.BASE_URL + relative_url
+
     @property
     def backdrop(self):
         if self.backdrop_url:
@@ -180,7 +202,8 @@ class SavedMovie(models.Model):
 class WatchedMovie(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
-
+    date_saved = models.DateTimeField(auto_now_add=True)
+    
     class Rating(models.IntegerChoices):
         Awful = 1
         Meh = 2

@@ -2,40 +2,79 @@
 <div class="container-fluid">
   <div class="row justify-content-between">
 
-    <!-- This is the Watchlist Column-->
+    <!-- This is the Upcoming Column-->
     <div
          class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column">
       <div
            class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
         <div class="h-100 p-2 ">
-          <h5 class="mb-0 text-white lh-100">Watchlist</h5>
+          <h5 class="mb-0 text-white lh-100">Upcoming</h5>
         </div>
       </div>
-      <div id="watchlist"
+      <div id="upcoming"
            data-url={% url 'movies:bookmark' %}>
-        {% include 'movies/movie-card-list.html' with movies=saved_movies%}
+        {% include 'movies/movie-card-list.html' with movies=upcoming_movies%}
       </div>
     </div>
 
-    <!-- This is the Movie Search Column-->
-
-
-    <!-- This is the Friends Column-->
     <div
-         class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column">
+         class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column">
       <div
            class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
-        <div class="h-100 p-2">
-          <h5 class="mb-0 text-white lh-100">Friends</h5>
+        <div class="h-100 p-2 ">
+          <h5 class="mb-0 text-white lh-100">Now Playing</h5>
         </div>
       </div>
-      <div class="btn-group-vertical text-center mt-1">
-        {% for friend in friends %}
-        <a href="{% url 'movies:user' user_id=friend.id  %}"
-           class="btn btn-outline-dark ">
-          {{friend.get_full_name}}
-        </a>
-        {% endfor %}
+      <div id="now-playing"
+           data-url={% url 'movies:bookmark' %}>
+        {% include 'movies/movie-card-list.html' with movies=now_playing_movies%}
+      </div>
+    </div>
+
+    <!-- This is the Now Playing Column-->
+    <div
+         class="mt-2 col-sm-4 border-right border-2 border-dark d-flex flex-column">
+      <div
+           class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+        <div class="h-100 p-2 ">
+          <h5 class="mb-0 text-white lh-100">Trending This Week</h5>
+        </div>
+      </div>
+      <div id="trending"
+           data-url={% url 'movies:bookmark' %}>
+        {% include 'movies/movie-card-list.html' with movies=trending_movies%}
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-end"
+         tabindex="-1"
+         id="friend-list"
+         aria-labelledby="offcanvasRightLabel">
+      <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+        <button type="button"
+                class="btn-close text-reset"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <!-- This is the Friends Column-->
+        <div
+             class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column">
+          <div
+               class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+            <div class="h-100 p-2">
+              <h5 class="mb-0 text-white lh-100">Friends</h5>
+            </div>
+          </div>
+          <div class="btn-group-vertical text-center mt-1">
+            {% for friend in friends %}
+            <a href="{% url 'movies:user' user_id=friend.id  %}"
+               class="btn btn-outline-dark ">
+              {{friend.get_full_name}}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

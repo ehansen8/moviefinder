@@ -30,7 +30,8 @@ APPEND_SLASH = True
 INTERNAL_IPS = ["127.0.0.1"]
 
 CELERY_TASK_ALWAYS_EAGER  = False
-
+CELERY_RESULT_BACKEND = 'db+sqlite:///db.sqlite3'
+CELERY_BROKER_URL = "amqp://"
 # Application definition
 
 INSTALLED_APPS = [

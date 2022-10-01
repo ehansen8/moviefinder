@@ -1,0 +1,205 @@
+{% extends 'base.html' %} {%block content%}
+<div id="main"
+     class="container-fluid">
+  <div class="row">
+
+    <div class="col-2 pt-3 sticky-top">
+      <!-- This is the Friends Column-->
+      <div class="w-100 border-left border-2 border-dark d-flex flex-column">
+        <!-- Friends -->
+        <div
+             class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+          <div class="h-100 p-2">
+            <h6 class="mb-0 text-white lh-100">Friends</h6>
+          </div>
+        </div>
+        <div class="btn-group-vertical text-center">
+          {% for friend in friends %}
+          <a href="{% url 'movies:user' user_id=friend.id  %}"
+             class="btn btn-outline-dark">
+            {{friend.get_full_name}}
+          </a>
+          {% endfor %}
+        </div>
+
+        <!-- Recently Saved (Movie Queryset)-->
+        <div
+             class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm mt-3">
+          <div class="h-100 p-2">
+            <h6 class="mb-0 text-white lh-100">Recently Saved</h6>
+          </div>
+        </div>
+
+        <div class="list-group">
+          {% for movie in saved_movies %}
+          <a href="#"
+             class="list-group-item list-group-item-action d-flex justify-content-between px-1"
+             aria-current="true">
+            <span class="text-truncate">{{ movie.title }}</span>
+            <span class="ms-2"
+                  style="color: #07a607">{{ movie.rating|floatformat:0 }}%</span>
+          </a>
+          {% endfor %}
+        </div>
+
+        <!-- Recently Watched (WatchedMovie Queryset)-->
+        <div
+             class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm mt-3">
+          <div class="h-100 p-2">
+            <h6 class="mb-0 text-white lh-100">Recently Watched</h6>
+          </div>
+        </div>
+
+        <div class="list-group">
+          {% for rating in watched_ratings %}
+          {% with r=rating.rating %}
+          <a href="#"
+             class="list-group-item list-group-item-action d-flex justify-content-between px-1"
+             aria-current="true">
+            <span class="text-truncate">{{ rating.movie.title }}</span>
+            <span
+                  class="ms-2 text-{% if r == 1 %}danger{% elif r == 2%}warning{% elif r == 3%}success{% else %}primary{% endif %}">
+              {{ r }}/4</span>
+          </a>
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+
+
+    </div>
+    <!-- Movie Lists -->
+    <div class="col-10 pt-3 pe-3">
+      <!-- Popular Row-->
+      <div class="swiper mb-5">
+        <div class="d-flex
+               align-items-center
+               justify-content-center
+               text-white-50
+               bg-dark
+               rounded shadow-sm
+               mb-2">
+          <div class="h-100 p-2 ">
+            <h5 class="mb-0 text-white lh-100">Popular Movies This Week</h5>
+          </div>
+        </div>
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper mb-2">
+          <!-- Slides -->
+          <!-- Movie Slides-->
+          {% for movie in trending_movies%}
+          <div class="swiper-slide pe-2 col-lg-2 col-3">
+            {% include 'movies/movie-poster-with-modal.html' %}
+            <div class="d-flex justify-content-between h6">
+              <span class="text-truncate">{{ movie.title }}</span>
+              <span class="ms-2"
+                    style="color: #07a607">{{ movie.rating|floatformat:0 }}%</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- If we need scrollbar -->
+        <div class="swiper-scrollbar"
+             style="height: 10px"></div>
+      </div>
+      <!-- Upcoming Row-->
+      <div class="swiper mb-5">
+        <div class="d-flex
+               align-items-center
+               justify-content-center
+               text-white-50
+               bg-dark
+               rounded shadow-sm
+               mb-2">
+          <div class="h-100 p-2 ">
+            <h5 class="mb-0 text-white lh-100">Upcoming</h5>
+          </div>
+        </div>
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper mb-2">
+          <!-- Slides -->
+          <!-- Movie Slides-->
+          {% for movie in upcoming_movies%}
+          <div class="swiper-slide px-2 col-lg-2 col-3">
+            {% include 'movies/movie-poster-with-modal.html' %}
+            <div class="d-flex justify-content-between h6">
+              <span class="text-truncate">{{ movie.title }}</span>
+              <span class="ms-2"
+                    style="color: #07a607">{{ movie.rating|floatformat:0 }}%</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- If we need scrollbar -->
+        <div class="swiper-scrollbar"
+             style="height: 10px"></div>
+      </div>
+      <!-- Now Playing Row-->
+      <div class="swiper mb-5">
+        <div class="d-flex
+               align-items-center
+               justify-content-center
+               text-white-50
+               bg-dark
+               rounded shadow-sm
+               mb-2">
+          <div class="h-100 p-2 ">
+            <h5 class="mb-0 text-white lh-100">Now Playing</h5>
+          </div>
+        </div>
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper mb-2">
+          <!-- Slides -->
+          <!-- Movie Slides-->
+          {% for movie in now_playing_movies%}
+          <div class="swiper-slide px-2 col-lg-2 col-3">
+            {% include 'movies/movie-poster-with-modal.html' %}
+            <div class="d-flex justify-content-between h6">
+              <span class="text-truncate">{{ movie.title }}</span>
+              <span class="ms-2"
+                    style="color: #07a607">{{ movie.rating|floatformat:0 }}%</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- If we need scrollbar -->
+        <div class="swiper-scrollbar"
+             style="height: 10px"></div>
+      </div>
+      </divrow>
+      <!-- Off Canvas Friends List-->
+      <div class="offcanvas offcanvas-end"
+           tabindex="-1"
+           id="friend-list"
+           aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+          <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+          <button type="button"
+                  class="btn-close text-reset"
+                  data-bs-dismiss="offcanvas"
+                  aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <!-- This is the Friends Column-->
+          <div
+               class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column">
+            <div
+                 class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
+              <div class="h-100 p-2">
+                <h5 class="mb-0 text-white lh-100">Friends</h5>
+              </div>
+            </div>
+            <div class="btn-group-vertical text-center mt-1">
+              {% for friend in friends %}
+              <a href="{% url 'movies:user' user_id=friend.id  %}"
+                 class="btn btn-outline-dark ">
+                {{friend.get_full_name}}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {%endblock content%}
