@@ -1,26 +1,30 @@
-<div id="movie-{{movie.pk}}" class="card shadow">
+<div id="movie-{{movie.pk}}"
+     class="card shadow">
   {%load static%}
   {%load movie_extras %}
-
   {% user_has_saved user_id=user.pk movie=movie as has_saved %}
   {% user_has_watched user_id=user.pk movie=movie as has_watched %}
-
-  <img class="card-img" src="{{movie.backdrop}}" alt="Card image" />
+  
+  <img class="card-img"
+       src="{{movie.backdrop}}"
+       alt="Card image" />
   <div class="card-img-overlay d-flex flex-column justify-content-end p-0">
     <div class="flex-grow-1 position-relative">
       <!-- Movie Card Link to Movie detail modal-->
-      <a href="#" data-bs-toggle="modal" data-bs-target="#movie-{{movie.id}}-modal"
-        class="stretched-link"></a>
+      <a href="#"
+         data-bs-toggle="modal"
+         data-bs-target="#movie-detail-modal"
+         data-url="{% url 'movies:detail' movie_id=movie.pk %}"
+         class="stretched-link"></a>
     </div>
     <div class="container movie-card-gradient pe-0">
       <div class="d-flex flex-row">
         <div class="flex-grow-1">
-          <small
-            class="card-text text-white">
+          <small class="card-text text-white">
             {% if movie.rating %}
-              {{movie.rating|floatformat:0}}%
+            {{movie.rating|floatformat:0}}%
             {% else %}
-              N/A
+            N/A
             {% endif %}
           </small>
           <h6 class="card-title text-white m-0 p-0">
@@ -34,30 +38,36 @@
 
           <!-- Save Movie Button-->
           <button type="button"
-            class="btn btn-sm btn-outline-light save-movie {% if has_saved %}active{% endif %}"
-            data-url="{% url 'movies:bookmark' %}"
-            data-movie-id="{{movie.pk}}">
+                  class="btn btn-sm btn-outline-light save-movie {% if has_saved %}active{% endif %}"
+                  data-url="{% url 'movies:bookmark' %}"
+                  data-movie-id="{{movie.pk}}">
             <i class="bi bi-bookmark"> </i>
           </button>
           <div class="btn-group dropdown-center rate-movie"
-            data-url="{% url 'movies:rate' %}" data-movie-id="{{movie.pk}}">
+               data-url="{% url 'movies:rate' %}"
+               data-movie-id="{{movie.pk}}">
 
             <!-- Rate Movie Button-->
             <button type="button"
-              class="btn btn-sm btn-outline-light caret-off dropdown-toggle {% if has_watched %}active{% endif %}"
-              data-bs-toggle="dropdown" data-bs-offset="0,10" >
+                    class="btn btn-sm btn-outline-light caret-off dropdown-toggle {% if has_watched %}active{% endif %}"
+                    data-bs-toggle="dropdown"
+                    data-bs-offset="0,10">
               <i class="bi bi-check2"></i>
             </button>
             <div class="dropdown-menu p-0">
               <div class="btn-group">
-                <a class="btn btn-outline-danger dropdown-item" href="#"
-                  data-rating="1">Awful</a>
-                <a class="btn btn-outline-warning dropdown-item" href="#"
-                  data-rating="2">Meh</a>
-                <a class="btn btn-outline-success dropdown-item" href="#"
-                  data-rating="3">Good</a>
-                <a class="btn btn-outline-primary dropdown-item" href="#"
-                  data-rating="4">Amazing</a>
+                <a class="btn btn-outline-danger dropdown-item"
+                   href="#"
+                   data-rating="1">Awful</a>
+                <a class="btn btn-outline-warning dropdown-item"
+                   href="#"
+                   data-rating="2">Meh</a>
+                <a class="btn btn-outline-success dropdown-item"
+                   href="#"
+                   data-rating="3">Good</a>
+                <a class="btn btn-outline-primary dropdown-item"
+                   href="#"
+                   data-rating="4">Amazing</a>
               </div>
             </div>
           </div>
@@ -66,4 +76,3 @@
     </div>
   </div>
 </div>
-{% include 'movies/movie-detail-modal.html' %}

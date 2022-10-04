@@ -9,5 +9,6 @@ urlpatterns = [
     path("bookmark", views.bookmark, name="bookmark"),
     path("watch-together", views.watch_together, name="watch_together"),
     path("rate", views.rate, name="rate"),
+    path("detail/<int:movie_id>", views.detail, name="detail")
 
 ]

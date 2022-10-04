@@ -3,15 +3,22 @@ let FRIEND_IDS = []
 const reload_subscribers = []
 let holdTime = null
 let holdStart = null
-
-document
-  .querySelector('#main')
+if (document.querySelector('#main')) {
+  document
+    .querySelector('#main')
   .addEventListener('show.bs.modal', (e) => {
     if (holdTime > 150) {
       e.preventDefault()
       e.stopPropagation()
     }
   })
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.dataset.bsTarget == "#movie-detail-modal") {
+    getMovieDetail(e)
+  }
+})
 
 if (document.querySelector('#movie-search-form')) {
   document
@@ -109,13 +116,21 @@ function initSwiper() {
     //spaceBetween: 20,
     preventClicks: false,
     preventClicksPropagation: false,
+    onAny(e) {
+      if (e == "touchStart") {
+        holdStart = Date.now()
+      }
+      if (e == 'touchEnd') {
+        holdTime = Date.now() - holdStart
+      }
+    },
 
     // And if we need scrollbar
     scrollbar: {
       el: '.swiper-scrollbar',
       draggable: true,
     },
-  });
+  })
 }
 
 const popoverTriggerList = document.querySelectorAll(
@@ -297,4 +312,19 @@ function formToJSON(formData) {
     object[key].push(value)
   })
   return object
+}
+
+async function getMovieDetail(e) {
+  const modalBody = document.querySelector('#movie-detail-modal .modal-body')
+  const url = e.target.dataset.url
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  const body = await response.text()
+  modalBody.innerHTML = body
+  initSwiper()
 }
