@@ -26,7 +26,18 @@ class TMDB:
                 "append_to_response": "credits,watch/providers",
             },
         )
+        if response.status_code == 404:
+            raise requests.exceptions.RequestException
         return response.json()
+
+    @staticmethod
+    def popular() -> list[int]:
+        response = requests.get(
+            f"{TMDB.URL}/movie/popular",
+            params={"api_key": tmdb_key, "region": "US"},
+        )
+        results = response.json()
+        return [x["id"] for x in results["results"]]
 
     @staticmethod
     def trending() -> list[int]:
@@ -72,4 +83,6 @@ class OMDB:
                 "i": imdb_id,
             },
         )
+        if response.status_code in [404, 401]:
+            raise requests.exceptions.RequestException(response)
         return response.json()

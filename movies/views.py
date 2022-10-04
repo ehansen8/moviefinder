@@ -20,16 +20,18 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
 
-
+    popular_movies = Movie.objects.filter(is_popular=True)
+    trending_movies = Movie.objects.filter(is_trending=True)
     upcoming_movies = Movie.objects.filter(is_upcoming=True)
     now_playing_movies = Movie.objects.filter(is_now_playing=True)
-    trending_movies = Movie.objects.filter(is_trending=True)
+    
 
     # Get user saved movies
     saved_movies = user.saved_movies.all().order_by("-saves__date_saved")[:5]
     watched_ratings = user.ratings.all().order_by("-date_saved")[:5]
     context = {
         "friends": friends,
+        "popular_movies": popular_movies,
         "trending_movies": trending_movies,
         "upcoming_movies": upcoming_movies,
         "now_playing_movies": now_playing_movies,

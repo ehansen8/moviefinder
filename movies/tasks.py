@@ -1,19 +1,76 @@
 from celery import shared_task
 from .models import *
+from django_celery_results.models import *
 
 
-# Idea is to re-query the external APIs to get updated info
-# This adds new data that orignally wasn't being recorded
-# Or can apply to newer movies that might be getting Updated
 @shared_task
-def update_movies_in_db():
-    pass
+def update_popular_task():
+    from .services import update_popular
+
+    update_popular()
 
 
-# Query TMDB to periodically update trending movies
 @shared_task
-def get_trending_movies():
-    pass
+def update_trending_task():
+    from .services import update_trending
+
+    update_trending()
+
+
+@shared_task
+def update_now_playing_task():
+    from .services import update_now_playing
+
+    update_now_playing()
+
+
+@shared_task
+def update_upcoming_task():
+    from .services import update_upcoming
+
+    update_upcoming()
+
+
+# if num_records in None: they will all be calculated
+@shared_task
+def update_ratings_task(starting_id=None, num_records=900):
+    # Pick up the previous starting id if its null
+    if not starting_id:
+        last_run_task = (
+            TaskResult.objects.filter(
+                task_name="movies.tasks.update_ratings_task", status="SUCCESS"
+            )
+            .order_by("-date_done")
+            .first()
+        )
+
+        starting_id = json.loads(last_run_task.result)["last_id"]
+    from .services import update_ratings
+
+    return update_ratings(starting_id=starting_id, num_records=num_records)
+
+
+# Tries to add movies from TMDB that we don't currently have on file
+@shared_task(name="add-new-movies")
+def add_new_movies_task(starting_id, num_records=25):
+    # Pick up the previous starting id if its null
+    if not starting_id:
+        last_run_task = (
+            TaskResult.objects.filter(task_name="add-new-movies", status="SUCCESS")
+            .order_by("-date_done")
+            .first()
+        )
+
+        starting_id = json.loads(last_run_task.result)["last_id"] + 1
+
+    from .services import save_movies_from_ids
+
+    id_list = range(starting_id, starting_id + num_records)
+    starting_cnt = len(Movie.objects.filter(tmdb_id__in=id_list))
+    ending_cnt = len(save_movies_from_ids(id_list))
+    suceeded = ending_cnt - starting_cnt
+
+    return {"starting_id": starting_id, "last_id": id_list[-1], "suceeded": suceeded}
 
 
 # Email Users when one of their saved movies is now streaming
@@ -52,7 +109,7 @@ def save_actors_to_movie(movie_pk, actors):
 
 @shared_task
 def save_genres_to_movie(movie_pk, genres):
-    id_list = [x['id'] for x in genres]
+    id_list = [x["id"] for x in genres]
     movie = Movie.objects.get(pk=movie_pk)
     movie.genres.set(Genre.objects.filter(tmdb_id__in=id_list))
 
@@ -104,6 +161,7 @@ def saveMovie_task(movie_obj):
     from .builders import MovieBuilder
 
     return MovieBuilder.saveMovie(movie_obj)
+
 
 @shared_task
 def save_movie_from_id_task(tmdb_id: int):

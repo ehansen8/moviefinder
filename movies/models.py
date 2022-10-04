@@ -102,7 +102,19 @@ class WatchProvider(models.Model):
             self.logo_url = self.BASE_URL + relative_url
 
 
+class MovieManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                rating=Coalesce("rotten_tomatoes_rating", F("imdb_rating") * 10, None)
+            )
+        )
+
+
 class Movie(models.Model):
+    objects = MovieManager()
     # Non Related Data
     title = models.CharField(max_length=255)
     tmdb_id = models.IntegerField()
@@ -121,17 +133,13 @@ class Movie(models.Model):
     imdb_rating = models.FloatField(blank=True, null=True)
     rotten_tomatoes_rating = models.FloatField(blank=True, null=True)
 
-    # First tomatoes else imdb
-    rating = models.FloatField(blank=True, null=True)
-
     BASE_URL = "https://www.themoviedb.org/t/p/original"
     poster_url = models.URLField(blank=True, null=True)
     backdrop_url = models.URLField(blank=True, null=True)
 
-
     # Indexing Data
-    is_trending = models.BooleanField(default=False, blank=True)
     is_popular = models.BooleanField(default=False, blank=True)
+    is_trending = models.BooleanField(default=False, blank=True)
     is_upcoming = models.BooleanField(default=False, blank=True)
     is_now_playing = models.BooleanField(default=False, blank=True)
 
@@ -155,15 +163,6 @@ class Movie(models.Model):
     watchers = models.ManyToManyField(
         User, through="WatchedMovie", related_name="watched_movies", blank=True
     )
-
-    def save(self, *args, **kwargs):
-        if rt := self.rotten_tomatoes_rating:
-            self.rating = rt
-        elif imdb := self.imdb_rating:
-            self.rating = imdb * 10
-        else:
-            self.rating = None
-        super(Movie, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -203,7 +202,7 @@ class WatchedMovie(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
     date_saved = models.DateTimeField(auto_now_add=True)
-    
+
     class Rating(models.IntegerChoices):
         Awful = 1
         Meh = 2

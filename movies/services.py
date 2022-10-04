@@ -1,9 +1,9 @@
-import re
-from django.db.models import QuerySet, Case, When
+from django.db.models import QuerySet
 from movies.models import Movie, Director
 from celery import group
 from datetime import datetime
 from .api import TMDB, OMDB
+import requests
 from movies.tasks import (
     save_movie_from_id_task,
     save_watch_providers_to_movie,
@@ -12,24 +12,97 @@ from movies.tasks import (
     save_prod_companies_to_movie,
 )
 
+# Update Services that are mainly run via scheduled tasks
+# Could potentially be called via a refresh option in the future
+def update_popular():
+    ids = TMDB.popular()
+
+    movies = save_movies_from_ids(ids)
+    Movie.objects.all().update(is_popular=False)
+    movies.update(is_popular=True)
+    return movies
+
+
+def update_trending():
+    ids = TMDB.trending()
+
+    movies = save_movies_from_ids(ids)
+    Movie.objects.all().update(is_trending=False)
+    movies.update(is_trending=True)
+    return movies
+
+
+def update_upcoming():
+    ids = TMDB.upcoming()
+    movies = save_movies_from_ids(ids)
+    Movie.objects.all().update(is_upcoming=False)
+    movies.update(is_upcoming=True)
+    return movies
+
+
+def update_now_playing():
+    ids = TMDB.now_playing()
+
+    movies = save_movies_from_ids(ids)
+    Movie.objects.all().update(is_now_playing=False)
+    movies.update(is_now_playing=True)
+    return movies
+
+
+# Because this could potentially update more movies than OMDB allows
+# Provide the starting id (to pick up from last run) and the # of querys to execute
+def update_ratings(starting_id, num_records) -> dict[str, int]:
+
+    # First we only care about updating null rt movies -> imdb rating is a bonus
+    movies = Movie.objects.filter(rotten_tomatoes_rating__isnull=True).order_by('pk')
+
+    # Next we only want movies starting after the specified id -> then limit to number of queries desired
+    movies = movies.filter(pk__gte=starting_id)[:num_records]
+
+    succeeded: int = 0
+    for movie in movies:
+        if movie.imdb_id:
+            try:
+                omdb_details = OMDB.detail(movie.imdb_id)
+                add_omdb_details(movie, omdb_details)
+                if movie.rotten_tomatoes_rating:
+                    succeeded += 1
+            # Exception means that OMDB rate limit was hit ->
+            # End Search & save last id to resume later
+            except requests.exceptions.RequestException:
+                break
+
+    Movie.objects.bulk_update(movies, ["imdb_rating", "rotten_tomatoes_rating"])
+    
+    # This should be the last saved value of movie
+    last_id = movie.pk
+
+    ret = {"last_id": last_id, "succeeded": succeeded}
+
+    return ret
+
 
 def save_movies_from_ids(tmdb_ids: list[int]) -> QuerySet[Movie]:
     if not tmdb_ids:
         return Movie.objects.none()
 
-    g = group(save_movie_from_id_task.s(tmdb_id) for tmdb_id in tmdb_ids)
-    g.delay()
+    results = []
+    for tmdb_id in tmdb_ids:
+        m = save_movie_from_id(tmdb_id)
+        if m:
+            results.append(m) 
 
-
-    trending_movies = Movie.objects.filter(tmdb_id__in=tmdb_ids)
-    return trending_movies
+    return Movie.objects.filter(pk__in=results).values_list('pk',flat=True)
 
 
 def save_movie_from_id(tmdb_id: int) -> int:
     try:
         movie = Movie.objects.get(tmdb_id=tmdb_id)
     except Movie.DoesNotExist:
-        movie = save_movie_details(tmdb_id)
+        try:
+            movie = save_movie_details(tmdb_id)
+        except requests.exceptions.RequestException:
+            return None
 
     return movie.pk
 
@@ -52,8 +125,11 @@ def save_movie_details(tmdb_id: int) -> None:
 
     # OMDB details
     if movie.imdb_id:
-        omdb_details = OMDB.detail(movie.imdb_id)
-        movie = add_omdb_details(movie, omdb_details)
+        try:
+            omdb_details = OMDB.detail(movie.imdb_id)
+            movie = add_omdb_details(movie, omdb_details)
+        except requests.exceptions.RequestException:
+            pass
 
     # Parse out director
     for member in crew:
