@@ -1,8 +1,10 @@
 from datetime import datetime
-from webbrowser import get
+from celery import group
 from movies.models import *
 from main.secrets import *
 import requests
+from movies.tasks import *
+
 
 
 class MovieBuilder:
@@ -30,13 +32,11 @@ class MovieBuilder:
     """Result length is the # of reuslts to return that are not already in the local DB
     """
 
-    def __init__(self, search_query, max_results=5, new_results=2) -> None:
+    def __init__(self, search_query, max_results=5) -> None:
 
         results = self.tmdbSearchQuery(search_query)["results"]
-        self.new_results = new_results
-        self.max_results = max_results
 
-        self.newly_added = 0
+        self.max_results = max_results
         if len(results) == 0:
             self.result_list = None
         else:
@@ -46,38 +46,36 @@ class MovieBuilder:
         if not self.result_list:
             return None
 
-        movie_list = []
+        return_group = self.result_list[:self.max_results]
+        return_group = group(saveMovie_task.s(r) for r in return_group)
 
-        # Only Return Max Results OR new_results
-        # whichever is hit first
-        # TODO - Spawn off a Task to handle saving all the results
-        for i, r in enumerate(self.result_list):
+        bg_group = self.result_list[self.max_results:]
+        bg_group = group(saveMovie_task.s(r) for r in bg_group)
 
-            if i >= self.max_results:
-                break
+        result = return_group.delay()
+        bg_group.delay()
+        
+        #Wait for results
+        return Movie.objects.filter(pk__in=result.get())
 
-            movie_list.append(self.saveMovie(r))
-            if self.newly_added >= self.new_results:
-                break
-
-        return movie_list
-
-    def saveMovie(self, movie_obj) -> Movie:
+    @staticmethod
+    def saveMovie(movie_obj) -> Movie:
 
         tmdb_id = movie_obj["id"]
         try:
             movie = Movie.objects.get(tmdb_id=tmdb_id)
         except Movie.DoesNotExist:
 
-            self.newly_added += 1
-            movie = self.getMovieDetails(tmdb_id)
+            movie = MovieBuilder.getMovieDetails(tmdb_id)
 
-        return movie
+        return movie.pk
 
-    def getMovieDetails(self, tmdb_id: int) -> Movie:
-        details = self.tmdbDetailQuery(tmdb_id)
+    @staticmethod
+    def getMovieDetails(tmdb_id: int) -> Movie:
+        details = MovieBuilder.tmdbDetailQuery(tmdb_id)
         genres = details["genres"]
-        credits = details["credits"]
+        crew = details["credits"]["crew"]
+        actors = details["credits"]["cast"]
         prod_companies = details["production_companies"]
 
         providers = []
@@ -88,7 +86,7 @@ class MovieBuilder:
         movie = Movie(tmdb_id=tmdb_id)
 
         # TMDB details
-        for obj_key, model_key in self.tmdb_field_mappings.items():
+        for obj_key, model_key in MovieBuilder.tmdb_field_mappings.items():
             value = details[obj_key]
 
             if model_key == "runtime":
@@ -103,20 +101,23 @@ class MovieBuilder:
                     value = None
 
             if model_key in {"poster_url", "backdrop_url"} and value:
-                value = self.BASE_URL + value
+                value = MovieBuilder.BASE_URL + value
 
             setattr(movie, model_key, value)
 
         # OMDB details
         if movie.imdb_id:
-            details = self.omdbDetailQuery(movie.imdb_id)
-            for obj_key, model_key in self.omdb_field_mappings.items():
-                value = details[obj_key]
+            details = MovieBuilder.omdbDetailQuery(movie.imdb_id)
+            for obj_key, model_key in MovieBuilder.omdb_field_mappings.items():
+                try:
+                    value = details[obj_key]
+                except KeyError:
+                    value = None
 
                 if model_key == "imdb_rating":
                     try:
                         value = float(value)
-                    except ValueError:
+                    except (ValueError, TypeError):
                         value = None
 
                 found = False
@@ -135,16 +136,17 @@ class MovieBuilder:
                 setattr(movie, model_key, value)
 
         # Parse out director
-        for member in credits["crew"]:
+        for member in crew:
             if member["job"] != "Director":
                 continue
+            d = None
             try:
                 d = Director.objects.get(tmdb_id=member["id"])
             except Director.DoesNotExist:
                 d = Director(
                     name=member["name"],
                     tmdb_id=member["id"],
-                    image_url=self.BASE_URL + member["profile_path"],
+                    image_url=MovieBuilder.BASE_URL + member["profile_path"],
                 )
                 d.save()
             finally:
@@ -155,72 +157,32 @@ class MovieBuilder:
         movie.save()
 
         # Now parse genres, cast, production companies and watch providers
-        for genre in genres:
-            try:
-                g = Genre.objects.get(tmdb_id=genre["id"])
-            except Genre.DoesNotExist:
-                movie.genres.create(name=genre["name"], tmdb_id=genre["id"])
-            else:
-                movie.genres.add(g)
+        save_genres_to_movie.delay(movie.pk, genres)
+        save_actors_to_movie.delay(movie.pk, actors)
+        save_prod_companies_to_movie.delay(movie.pk, prod_companies)
+        save_watch_providers_to_movie.delay(movie.pk, providers)
 
-        for actor in credits["cast"][:10]:
-            try:
-                a = Actor.objects.get(tmdb_id=actor["id"])
-            except Actor.DoesNotExist:
-                a = Actor(
-                    name=actor["name"],
-                    tmdb_id=actor["id"],
-                )
-                if path := actor["profile_path"]:
-                    a.image_url = self.BASE_URL + path
-                a.save()
-            finally:
-                movie.actors.add(a)
-
-        for comp in prod_companies:
-            try:
-                c = ProductionCompany.objects.get(tmdb_id=comp["id"])
-            except ProductionCompany.DoesNotExist:
-                c = ProductionCompany(
-                    name=comp["name"],
-                    tmdb_id=comp["id"],
-                    logo_url=self.BASE_URL + comp["logo_path"],
-                )
-                c.save()
-            finally:
-                movie.production_companies.add(c)
-
-        if "flatrate" in providers:
-            for provider in providers["flatrate"]:
-                try:
-                    p = WatchProvider.objects.get(tmdb_id=provider["provider_id"])
-                except WatchProvider.DoesNotExist:
-                    movie.watch_providers.create(
-                        name=provider["provider_name"],
-                        tmdb_id=provider["provider_id"],
-                        logo_url=self.BASE_URL + provider["logo_path"],
-                    )
-                else:
-                    movie.watch_providers.add(p)
         return movie
 
     """ Gets omdb details:
         Country, IMDB Rating and Rotten Tomatoes Rating
     """
 
-    def omdbDetailQuery(self, imdb_id: int) -> dict:
+    @staticmethod
+    def omdbDetailQuery(imdb_id: int) -> dict:
         # OMDB
         omdb_response = requests.get(
-            self.OMDB_URL,
+            MovieBuilder.OMDB_URL,
             params={
                 "i": imdb_id,
             },
         )
         return omdb_response.json()
 
-    def tmdbSearchQuery(self, search_query: str) -> dict:
+    @staticmethod
+    def tmdbSearchQuery(search_query: str) -> dict:
         tmdb_response = requests.get(
-            f"{self.TMDB_URL}/search/movie?",
+            f"{MovieBuilder.TMDB_URL}/search/movie?",
             params={
                 "api_key": tmdb_key,
                 "query": search_query,
@@ -229,9 +191,10 @@ class MovieBuilder:
         )
         return tmdb_response.json()
 
-    def tmdbDetailQuery(self, movie_id: int) -> dict:
+    @staticmethod
+    def tmdbDetailQuery(movie_id: int) -> dict:
         tmdb_response = requests.get(
-            f"{self.TMDB_URL}/movie/{movie_id}",
+            f"{MovieBuilder.TMDB_URL}/movie/{movie_id}",
             params={
                 "api_key": tmdb_key,
                 "append_to_response": "credits,watch/providers",

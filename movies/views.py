@@ -12,6 +12,7 @@ from movies.builders import MovieBuilder
 from movies.forms import WatchTogetherFilterForm
 from .helpers import filter_watch_together
 from django.db.models import Q, F
+from .selectors import *
 
 # Create your views here.
 def dashboard(request: HttpRequest) -> HttpResponse:
@@ -19,12 +20,27 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
 
+    popular_movies = Movie.objects.filter(is_popular=True)
+    trending_movies = Movie.objects.filter(is_trending=True)
+    upcoming_movies = Movie.objects.filter(is_upcoming=True)
+    now_playing_movies = Movie.objects.filter(is_now_playing=True)
+
     # Get user saved movies
-    saved_movies = user.saved_movies.all().order_by("-saves__date_saved")
-    context = {"friends": friends, "saved_movies": saved_movies, "nbar": "dashboard"}
+    saved_movies = user.saved_movies.all().order_by("-saves__date_saved")[:5]
+    watched_ratings = user.ratings.all().order_by("-date_saved")[:5]
+    context = {
+        "friends": friends,
+        "popular_movies": popular_movies,
+        "trending_movies": trending_movies,
+        "upcoming_movies": upcoming_movies,
+        "now_playing_movies": now_playing_movies,
+        "saved_movies": saved_movies,
+        "watched_ratings": watched_ratings,
+        "nbar": "dashboard",
+    }
     return render(
         request,
-        "movies/dashboard.html",
+        "movies/dashboard-2.html",
         context=context,
     )
 
@@ -46,11 +62,12 @@ def user(request: HttpRequest, user_id: int) -> HttpResponse:
 
 
 def search(request: HttpRequest) -> HttpResponse:
+
     if request.method == "POST":
         data = json.load(request)
         search_query = data["search"]
 
-        movies = MovieBuilder(search_query, max_results=10, new_results=2).saveMovies()
+        movies = MovieBuilder(search_query, max_results=5).saveMovies()
 
         # movie-card only requires the model: movie for context
         context = {"movies": movies}
@@ -104,7 +121,7 @@ def watch_together(request: HttpRequest) -> HttpResponse:
         movies = Movie.objects.filter(q_filter)
         movies = movies.filter(savers__pk__in=ids)
         movies = movies.annotate(count=Count("savers", distinct=True))
-        movies = movies.order_by("-count", "-rating")
+        movies = movies.order_by("-count", "-rating")[:10]
 
         active_users = User.objects.filter(pk__in=ids)
         post_context = {"recommended": movies, "active_users": active_users}
@@ -115,7 +132,7 @@ def watch_together(request: HttpRequest) -> HttpResponse:
 
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
-    movies = user.saved_movies.all().order_by("-rating")
+    movies = user.saved_movies.all().order_by("-rating")[:10]
 
     form = WatchTogetherFilterForm(queryset=Genre.objects.all())
 
@@ -141,3 +158,8 @@ def rate(request: HttpRequest) -> HttpResponse:
         user.ratings.create(movie=movie, rating=rating)
 
     return HttpResponse("")
+
+
+def detail(request: HttpRequest, movie_id) -> HttpResponse:
+    context = {"movie": Movie.objects.get(pk=movie_id)}
+    return render(request, "movies/movie-detail-modal-body.html", context=context)

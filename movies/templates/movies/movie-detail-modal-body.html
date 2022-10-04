@@ -1,0 +1,144 @@
+<!-- Context: movie (Movie)-->
+{%load movie_extras %}
+{% user_has_saved user_id=user.pk movie=movie as has_saved %}
+{% user_has_watched user_id=user.pk movie=movie as has_watched %}
+
+<button type="button"
+        class="btn-close btn-close-white position-absolute top-0 end-0 m-4"
+        data-bs-dismiss="modal"
+        aria-label="Close"></button>
+<img class="card-img rounded"
+     src="{{movie.backdrop}}"
+     alt="Card image" />
+
+
+<h1 class="display-6 ">{{movie.title}}</h1>
+<small>{{movie.genres.all| slice:":2" | join:", "}} &bull;
+    {{movie.year}} &bull; {{movie.runtime|time:"g"}} hr
+    {{movie.runtime|time:"i"}} min</small>
+
+<!-- Hide / Rate / Save Group-->
+<div class="d-flex justify-content-center m-3">
+    <div class="btn-group">
+        <button type="button"
+                class="btn btn-outline-light px-3">
+            <i class="bi bi-hand-thumbs-down"></i> Hide
+        </button>
+        <button type="button"
+                class="btn btn-outline-light px-3 {% if has_watched %}active{% endif %}">
+            <i class="bi bi-check2"></i> Seen
+        </button>
+        <button type="button"
+                class="btn btn-outline-light px-3 {% if has_saved %}active{% endif %}">
+            <i class="bi bi-bookmark"> </i> Save
+        </button>
+    </div>
+</div>
+
+<!-- Rotten Tomatoes / IMDB / User Ratings-->
+<div class="d-flex flex-wrap justify-content-center">
+    <p class="col-sm-9 mb-3 text-start">{{movie.plot}}</p>
+    <hr class="col-12">
+    <div class="container d-flex justify-content-center ">
+        <div class="col-sm-3 col-lg-2 mx-1">
+            <a class="btn vstack text-reset">
+                <span>{{movie.imdb_rating}}/10</span>
+                <span><u>IMDb</u></span>
+            </a>
+        </div>
+        <div class="vr"></div>
+        <div class="col-auto mx-1">
+            <a class="btn col vstack text-reset">
+                <span>{{movie.rotten_tomatoes_rating}}%</span>
+                <span><u>Rotten Tomatoes</u></span>
+            </a>
+        </div>
+        <div class="vr"></div>
+        <div class="col-sm-3 col-lg-2 mx-1">
+            <a class="btn col vstack text-reset">
+                <span>{{movie.rating|divide:25}}/4</span>
+                <span class="">User Rating</span>
+            </a>
+        </div>
+    </div>
+    <hr class="col-12">
+
+    <!-- Production Companies -->
+    <h6 class="col-sm-12 m-1">Production Companies</h6>
+    <div class="col-sm-12 justify-content-center">
+        {{movie.production_companies.all| join:", "}}
+    </div>
+    <hr class="col-12">
+
+
+    <!-- Director / Actors-->
+    <div class="swiper">
+
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper mb-3">
+
+            <!-- Slides -->
+            <!-- Director Slide -->
+            <div class="swiper-slide"
+                 style="max-width: 20%">
+                <div class="border-end px-2">
+                    <small>Director</small>
+                    <img class="w-100 rounded "
+                         src="{{movie.director.image_url}}"
+                         alt="director photo">
+
+                    <div>{{movie.director.name}}</div>
+                </div>
+            </div>
+            <!-- Actor Slides-->
+            {% for a in movie.actors.all%}
+            <div class="swiper-slide px-2"
+                 style="max-width: 20%">
+                <div class="">
+                    {% if forloop.first %}
+                    <small>Cast</small>
+                    {% else %}
+                    <div>&nbsp</div>
+                    {% endif %}
+                    <img class="w-100 rounded"
+                         src="{{a.image}}"
+                         alt="{{a.name}} photo">
+                    <div>{{a.name}}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <!-- If we need scrollbar -->
+        <div class="swiper-scrollbar"
+             style="height: 10px">
+        </div>
+    </div>
+    <hr class="col-12">
+
+    <!-- Genres -->
+    <h6 class="col-sm-12 m-0">Genres</h6>
+    <div class="col-sm-12"> {{movie.genres.all| join:", "}}
+    </div>
+    <hr class="col-12">
+
+    <!-- Release Date -->
+    <h6 class="col-sm-12 m-0">Released</h6>
+    <div class="col-sm-12"> {{movie.release_date}}</div>
+    <hr class="col-12">
+
+    <!-- Watch Providers / Streaming -->
+    <h6 class="col-sm-12 m-1">Available On</h6>
+    <div class="col-sm-12 justify-content-center">
+        {% for p in movie.watch_providers.all%}
+        <img src="{{p.logo_url}}"
+             alt="p.name"
+             class="rounded"
+             width="50px">
+        {% empty %}
+        <div class="col-sm-12">Not currently streaming</div>
+        {% endfor %}
+    </div>
+
+</div>

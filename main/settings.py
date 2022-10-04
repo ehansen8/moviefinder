@@ -17,7 +17,6 @@ from main.secrets import SECRET_KEY
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 SECRET_KEY
@@ -30,6 +29,11 @@ ALLOWED_HOSTS = ["192.168.0.5", "127.0.0.1"]
 APPEND_SLASH = True
 INTERNAL_IPS = ["127.0.0.1"]
 
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_EXTENDED = True
+# CELERY_RESULT_BACKEND = "db+sqlite:///db.sqlite3"
+CELERY_BROKER_URL = "amqp://"
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,6 +49,8 @@ INSTALLED_APPS = [
     "sass_processor",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [

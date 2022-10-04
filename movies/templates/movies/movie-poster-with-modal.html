@@ -2,10 +2,11 @@
 <div class="position-relative">
     <img class="w-100 rounded "
          src="{{movie.poster_url}}"
-         alt="">
+         alt=""
+         style="aspect-ratio: 6/9">
     <a href="#"
        data-bs-toggle="modal"
-       data-bs-target="#movie-{{movie.id}}-modal"
+       data-bs-target="#movie-detail-modal"
+       data-url="{% url 'movies:detail' movie_id=movie.pk %}"
        class="stretched-link"></a>
 </div>
-{% include 'movies/movie-detail-modal.html' %}
