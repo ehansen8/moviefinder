@@ -92,7 +92,7 @@ def save_movies_from_ids(tmdb_ids: list[int]) -> QuerySet[Movie]:
         if m:
             results.append(m) 
 
-    return Movie.objects.filter(pk__in=results).values_list('pk',flat=True)
+    return Movie.objects.filter(pk__in=results)
 
 
 def save_movie_from_id(tmdb_id: int) -> int:

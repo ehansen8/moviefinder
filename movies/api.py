@@ -6,7 +6,7 @@ class TMDB:
     URL = f"https://api.themoviedb.org/3"
 
     @staticmethod
-    def search(search_query: str) -> dict:
+    def search(search_query: str) -> list[int]:
         response = requests.get(
             f"{TMDB.URL}/search/movie?",
             params={
@@ -15,7 +15,8 @@ class TMDB:
                 "include_adult": False,
             },
         )
-        return response.json()
+        results = response.json()
+        return [x["id"] for x in results["results"]]
 
     @staticmethod
     def detail(movie_id: int) -> dict:
@@ -70,12 +71,12 @@ class TMDB:
 class OMDB:
     URL = f"http://www.omdbapi.com/?apikey={omdb_key}"
 
-    """ Gets omdb details:
-        Country, IMDB Rating and Rotten Tomatoes Rating
-    """
-
     @staticmethod
     def detail(imdb_id: int) -> dict:
+        """Gets omdb details:
+        Country, IMDB Rating and Rotten Tomatoes Rating
+        """
+
         # OMDB
         response = requests.get(
             OMDB.URL,

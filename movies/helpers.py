@@ -9,7 +9,6 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseRedirect
 from main.models import User
 from .models import Movie, Genre
-from movies.builders import MovieBuilder
 from movies.forms import WatchTogetherFilterForm
 
 

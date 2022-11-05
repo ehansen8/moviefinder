@@ -1,8 +1,7 @@
 from datetime import datetime
-from pyexpat import model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import QuerySet, F
+from django.db.models import QuerySet, F, Avg
 from django.db.models.functions import Coalesce
 
 from main.models import User
@@ -94,6 +93,8 @@ class WatchProvider(models.Model):
     logo_url = models.URLField(blank=True)
     BASE_URL = "https://www.themoviedb.org/t/p/original"
 
+    users = models.ManyToManyField(User, related_name="streaming_services", blank=True)
+
     def __str__(self):
         return self.name
 
@@ -167,6 +168,10 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def user_rating(self):
+        return self.ratings.aggregate(Avg('rating'))["rating__avg"]
+    
     @property
     def year(self):
         if self.release_date:

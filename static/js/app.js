@@ -1,4 +1,5 @@
 let FILTER_FORM
+let PAGE = 1
 let FRIEND_IDS = []
 const reload_subscribers = []
 let holdTime = null
@@ -6,12 +7,12 @@ let holdStart = null
 if (document.querySelector('#main')) {
   document
     .querySelector('#main')
-  .addEventListener('show.bs.modal', (e) => {
-    if (holdTime > 150) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  })
+    .addEventListener('show.bs.modal', (e) => {
+      if (holdTime > 150) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    })
 }
 
 document.addEventListener("click", (e) => {
@@ -56,6 +57,17 @@ if (document.querySelector('#filter-form')) {
   FILTER_FORM.addEventListener('submit', watch_together)
 }
 
+if (document.querySelector('#reset-filter-form')) {
+  document
+    .querySelector('#reset-filter-form')
+    .addEventListener('click', () => {
+      FILTER_FORM.reset()
+      getRecommendations()
+    } )
+}
+
+
+
 if (document.querySelector('#friend-list')) {
   document
     .querySelector('#friend-list')
@@ -66,6 +78,16 @@ if (document.querySelector('#friend-list')) {
 document.addEventListener('click', bookmark_movie)
 document.addEventListener('click', rate_movie)
 
+if (document.querySelector('#recommendations')) {
+  document
+    .querySelector('#recommendations')
+    .addEventListener("click", (e) => {
+      if (e.target.classList.contains("page-link")) {
+        PAGE = e.target.dataset.page
+        reloadSubscribers()
+      }
+    })
+}
 
 if (document.querySelector('#recommendations')) {
   reload_subscribers.push(getRecommendations)
@@ -271,12 +293,12 @@ async function getWatchlist() {
 
 async function getRecommendations() {
   const url = FILTER_FORM.dataset.url
-
   const jsonForm = formToJSON(new FormData(FILTER_FORM))
 
   const payload = {
     ids: FRIEND_IDS,
     form: jsonForm,
+    page: PAGE
   }
 
   const json = JSON.stringify(payload)
@@ -299,7 +321,7 @@ async function getRecommendations() {
 }
 
 function formToJSON(formData) {
-  var object = {}
+  var object = { genres: [] }
   formData.forEach((value, key) => {
     // Reflect.has in favor of: object.hasOwnProperty(key)
     if (!Reflect.has(object, key)) {

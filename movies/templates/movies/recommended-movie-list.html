@@ -1,14 +1,69 @@
-{% load static%} 
-{% for movie in recommended %}
+{% load static%}
+{%load movie_extras %}
+
+
+{% for movie in recommended_page %}
 <div class="col-sm-6 my-1">
     {% include 'movies/movie-card.html' with movie=movie rank=forloop.counter%}
     <div class="list-group list-group-horizontal text-center">
         {% for user in active_users %}
-            <div 
-            class="flex-fill list-group-item {% if movie in user.saved_movies.all %} list-group-item-success{%endif%}">
-                {{user.get_short_name}}
-            </div>
+        {% user_has_saved user_id=user.pk movie=movie as has_saved %}
+        {% user_has_watched user_id=user.pk movie=movie as has_watched %}
+        <div class="flex-fill 
+                list-group-item 
+                {% if has_saved %} 
+                    list-group-item-success
+                {% elif has_watched %}
+                    list-group-item-danger
+                {%endif%}">
+            {{user.get_short_name}}
+        </div>
         {% endfor %}
     </div>
 </div>
 {% endfor %}
+
+<nav class="sticky-bottom w-100 d-flex flex-row justify-content-center">
+    <ul class="pagination pagination">
+
+        <!-- 1st & previous page-->
+        {% if recommended_page.number > 2 %}
+        <li class="page-item"><a class="page-link"
+               href="#"
+               data-page="1">1</a></li>
+        </li>
+        {%endif%}
+
+        <!-- Previous page-->
+        {% if recommended_page.has_previous %}
+        <li class="page-item"><a class="page-link"
+               href="#"
+               data-page="{{recommended_page.previous_page_number}}">{{recommended_page.previous_page_number}}</a>
+        </li>
+        {%endif%}
+
+        <!-- Current Page -->
+        <li class="page-item active"><a class="page-link"
+               href="#"
+               data-page="{{recommended_page.number}}">{{recommended_page.number}}</a>
+        </li>
+
+        <!-- Next Page-->
+        {% if recommended_page.has_next %}
+        <li class="page-item"><a class="page-link"
+               href="#"
+               data-page="{{recommended_page.next_page_number}}">{{recommended_page.next_page_number}}</a>
+        </li>
+        {%endif%}
+
+        <!-- Last Page-->
+        {% if recommended_page.number < recommended_page.paginator.num_pages|add:"-1" %}
+        </li>
+        <li class="page-item"><a class="page-link"
+               href="#"
+               data-page="{{recommended_page.paginator.num_pages}}">{{recommended_page.paginator.num_pages}}</a>
+        </li>
+        {%endif%}
+
+    </ul>
+</nav>

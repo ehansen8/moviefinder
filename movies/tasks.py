@@ -157,13 +157,6 @@ def save_watch_providers_to_movie(movie_pk, providers):
 
 
 @shared_task
-def saveMovie_task(movie_obj):
-    from .builders import MovieBuilder
-
-    return MovieBuilder.saveMovie(movie_obj)
-
-
-@shared_task
 def save_movie_from_id_task(tmdb_id: int):
     from .services import save_movie_from_id
 

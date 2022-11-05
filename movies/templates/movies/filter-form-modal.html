@@ -1,44 +1,41 @@
 <!-- Modal -->
 {% load crispy_forms_tags %}
-<div id="filter-modal" class="modal fade" tabindex="-1">
+<div id="filter-modal"
+     class="modal fade"
+     tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <form
-        id="filter-form"
-        method="POST"
-        data-url="{% url 'movies:watch_together' %}"
-      >
-    <div class="modal-content text-dark">
-      
+    <form id="filter-form"
+          method="POST"
+          data-url="{% url 'movies:watch_together' %}">
+      <div class="modal-content text-dark">
+
         <div class="modal-header text-center">
-          <h5 class="modal-title w-100" id="exampleModalLabel">Filters</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <h5 class="modal-title w-100"
+              id="exampleModalLabel">Filters</h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
         </div>
         <div class="modal-body fs-6">
           {% crispy filter_form filter_form.helper %}
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
             Close
           </button>
-          <button type="button" class="btn btn-outline-secondary">Reset</button>
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
+          <button id="reset-filter-form"
+                  type="button"
+                  class="btn btn-outline-secondary">Reset</button>
+          <button type="submit"
+                  class="btn btn-primary">
             Apply Filters
-          </input>
+            </input>
         </div>
-      
-    </div>
+
+      </div>
     </form>
   </div>
 </div>

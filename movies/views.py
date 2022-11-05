@@ -8,11 +8,13 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseRedirect
 from main.models import User
 from .models import Movie, Genre
-from movies.builders import MovieBuilder
 from movies.forms import WatchTogetherFilterForm
 from .helpers import filter_watch_together
 from django.db.models import Q, F
 from .selectors import *
+from django.core.paginator import Paginator
+
+from movies import selectors
 
 # Create your views here.
 def dashboard(request: HttpRequest) -> HttpResponse:
@@ -45,14 +47,11 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     )
 
 
-""" User View:
+def user(request: HttpRequest, user_id: int) -> HttpResponse:
+    """User View:
     Displays the user view of passed in user ID
     This can be the session user or a different user (friend)
-    Consists of saved movies (watchlist) and seen / rated movies 
-"""
-
-
-def user(request: HttpRequest, user_id: int) -> HttpResponse:
+    Consists of saved movies (watchlist) and seen / rated movies"""
 
     user: User = User.objects.get(pk=user_id)
     saved_movies = user.saved_movies.all()
@@ -67,7 +66,7 @@ def search(request: HttpRequest) -> HttpResponse:
         data = json.load(request)
         search_query = data["search"]
 
-        movies = MovieBuilder(search_query, max_results=5).saveMovies()
+        movies = selectors.search_movies(search_query, num_results=5, as_task=True)
 
         # movie-card only requires the model: movie for context
         context = {"movies": movies}
@@ -77,12 +76,9 @@ def search(request: HttpRequest) -> HttpResponse:
         return HttpResponseRedirect(reverse("movies:dashboard"))
 
 
-""" Adds or removes a bookmark from a movie
-    Also removes a rating if one exists    
-"""
-
-
 def bookmark(request: HttpRequest) -> HttpResponse:
+    """Adds or removes a bookmark from a movie
+    Also removes a rating if one exists"""
     user = request.user
     if request.method == "POST":
         data = json.load(request)
@@ -121,10 +117,15 @@ def watch_together(request: HttpRequest) -> HttpResponse:
         movies = Movie.objects.filter(q_filter)
         movies = movies.filter(savers__pk__in=ids)
         movies = movies.annotate(count=Count("savers", distinct=True))
-        movies = movies.order_by("-count", "-rating")[:10]
+        movies = movies.order_by("-count", "-rating")
+
+        paginator = Paginator(movies, 10)
+        page_number = data["page"]
+
+        page_obj = paginator.get_page(page_number)
 
         active_users = User.objects.filter(pk__in=ids)
-        post_context = {"recommended": movies, "active_users": active_users}
+        post_context = {"recommended_page": page_obj, "active_users": active_users}
 
         return render(
             request, "movies/recommended-movie-list.html", context=post_context
@@ -132,12 +133,15 @@ def watch_together(request: HttpRequest) -> HttpResponse:
 
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
-    movies = user.saved_movies.all().order_by("-rating")[:10]
+    movies = user.saved_movies.all().order_by("-rating")
 
     form = WatchTogetherFilterForm(queryset=Genre.objects.all())
 
+    paginator = Paginator(movies, 10)
+    page_obj = paginator.get_page(1)
+
     get_context = {
-        "recommended": movies,
+        "recommended_page": page_obj,
         "friends": friends,
         "active_users": [user],
         "nbar": "watch_together",
