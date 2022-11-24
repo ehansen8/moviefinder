@@ -168,39 +168,6 @@
         <div class="swiper-scrollbar"
              style="height: 10px"></div>
       </div>
-      </divrow>
-      <!-- Off Canvas Friends List-->
-      <div class="offcanvas offcanvas-end"
-           tabindex="-1"
-           id="friend-list"
-           aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-          <h5 id="offcanvasRightLabel">Offcanvas right</h5>
-          <button type="button"
-                  class="btn-close text-reset"
-                  data-bs-dismiss="offcanvas"
-                  aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-          <!-- This is the Friends Column-->
-          <div
-               class="mt-2 col-sm-4 border-left border-2 border-dark d-flex flex-column">
-            <div
-                 class="d-flex align-items-center justify-content-center text-white-50 bg-dark rounded shadow-sm">
-              <div class="h-100 p-2">
-                <h5 class="mb-0 text-white lh-100">Friends</h5>
-              </div>
-            </div>
-            <div class="btn-group-vertical text-center mt-1">
-              {% for friend in friends %}
-              <a href="{% url 'movies:user' user_id=friend.id  %}"
-                 class="btn btn-outline-dark ">
-                {{friend.get_full_name}}
-              </a>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>

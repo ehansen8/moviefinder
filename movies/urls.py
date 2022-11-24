@@ -3,7 +3,7 @@ from . import views
 
 app_name = "movies"
 urlpatterns = [
-    path("", views.dashboard, name="dashboard"),
+    path("dashboard", views.dashboard, name="dashboard"),
     path("user/<int:user_id>", views.user, name="user"),
     path("search", views.search, name="search"),
     path("bookmark", views.bookmark, name="bookmark"),

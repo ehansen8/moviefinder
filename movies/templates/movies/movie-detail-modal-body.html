@@ -24,12 +24,41 @@
                 class="btn btn-outline-light px-3">
             <i class="bi bi-hand-thumbs-down"></i> Hide
         </button>
+        
+        <!-- Rate Movie Button w/ dropdown options-->
+        <div class="btn-group dropdown-center rate-movie"
+               data-url="{% url 'movies:rate' %}"
+               data-movie-id="{{movie.pk}}"
+               data-refresh-url="{% url 'movies:detail' movie_id=movie.pk %}">
+
+            
+            <button type="button"
+                    class="btn px-3 btn-outline-light caret-off dropdown-toggle {% if has_watched %}active{% endif %}"
+                    data-bs-toggle="dropdown"
+                    data-bs-offset="0,10">
+              <i class="bi bi-check2"></i> Seen
+            </button>
+            <div class="dropdown-menu p-0">
+              <div class="btn-group">
+                <a class="btn btn-outline-danger dropdown-item"
+                   href="#"
+                   data-rating="1">Awful</a>
+                <a class="btn btn-outline-warning dropdown-item"
+                   href="#"
+                   data-rating="2">Meh</a>
+                <a class="btn btn-outline-success dropdown-item"
+                   href="#"
+                   data-rating="3">Good</a>
+                <a class="btn btn-outline-primary dropdown-item"
+                   href="#"
+                   data-rating="4">Amazing</a>
+              </div>
+            </div>
+          </div>
         <button type="button"
-                class="btn btn-outline-light px-3 {% if has_watched %}active{% endif %}">
-            <i class="bi bi-check2"></i> Seen
-        </button>
-        <button type="button"
-                class="btn btn-outline-light px-3 {% if has_saved %}active{% endif %}">
+                class="btn btn-outline-light px-3 save-movie {% if has_saved %}active{% endif %}"
+                data-url="{% url 'movies:bookmark' %}"
+                data-movie-id="{{movie.pk}}">
             <i class="bi bi-bookmark"> </i> Save
         </button>
     </div>

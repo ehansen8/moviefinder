@@ -11,18 +11,29 @@ from main.models import User
 from .models import Movie, Genre
 from movies.forms import WatchTogetherFilterForm
 
+# TODO: replace with adding profile info to select your streaming services
 
-def filter_watch_together(
-    form: WatchTogetherFilterForm,
-) -> Q:
+STREAMING = {
+    "Amazon Prime Video": 14,
+    "HBO Max": 9,
+    "Netflix": 8,
+    "Disney Plus": 5,
+    "Hulu": 2,
+    "YouTube": 77,
+    "Apple TV": 64,
+}
+
+
+def filter_watch_together(form: WatchTogetherFilterForm) -> Q:
     q = Q()
     if genres := form.cleaned_data["genres"]:
         q &= Q(genres__pk__in=genres)
 
     if min_rating := form.cleaned_data["rating_cutoff"]:
         q &= Q(rating__gte=min_rating)
-
-    # TODO Implement streaming later
+        
+    if form.cleaned_data["streaming"]:
+        q &= Q(watch_providers__pk__in=STREAMING.values())
 
     if min_year := form.cleaned_data["min_year"]:
         q &= Q(release_date__year__gte=min_year)

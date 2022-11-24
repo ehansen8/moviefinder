@@ -24,6 +24,9 @@ SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+
 ALLOWED_HOSTS = ["192.168.0.5", "127.0.0.1"]
 
 APPEND_SLASH = True

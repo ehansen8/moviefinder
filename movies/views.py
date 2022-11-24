@@ -1,7 +1,7 @@
 import json
 from multiprocessing import context
 from main.secrets import omdb_key, tmdb_key
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Count
 from django.urls import reverse
 from django.http.request import HttpRequest
@@ -19,6 +19,9 @@ from movies import selectors
 # Create your views here.
 def dashboard(request: HttpRequest) -> HttpResponse:
     user = request.user
+    if not user.is_authenticated:
+        return redirect("login")
+
     # Get list of friends excluding the current user
     friends = User.objects.exclude(pk=user.pk)
 
