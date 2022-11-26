@@ -17,7 +17,7 @@ export default function RecentlyWatchedColumn({
       </div>
 
       <div className='list-group'>
-        {watched.map(({ title, rating }: Movie) => {
+        {watched.map(({ pk, title, rating }: Movie) => {
           let color: string = ''
           switch (rating) {
             case 1:
@@ -35,6 +35,7 @@ export default function RecentlyWatchedColumn({
           }
           return (
             <a
+              key={pk}
               href='#'
               className='list-group-item list-group-item-action d-flex justify-content-between px-1'
               aria-current='true'

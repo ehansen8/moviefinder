@@ -18,6 +18,7 @@ export default function RecentlySavedColumn({
         {savedMovies.map((movie: any) => {
           return (
             <a
+              key={movie.pk}
               href='#'
               className='list-group-item list-group-item-action d-flex justify-content-between px-1'
               aria-current='true'

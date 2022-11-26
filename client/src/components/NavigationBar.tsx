@@ -1,7 +1,32 @@
 import React from 'react'
 import { MovieSearchBar } from './MovieSearchBar'
 import { Navbar, Nav, Stack } from 'react-bootstrap'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+
 export function NavigationBar() {
+  const router = useRouter()
+  const activeLink = (url: string) => (router.pathname === url ? 'active' : '')
+
+  const links = [
+    {
+      text: 'Dashboard',
+      url: '/Dashboard',
+    },
+    {
+      text: 'Watch Together',
+      url: '/WatchTogether',
+    },
+    {
+      text: 'Stats',
+      url: '/Stats',
+    },
+    {
+      text: 'Logout',
+      url: '/Logout',
+    },
+  ]
+
   return (
     <Navbar
       bg='dark'
@@ -21,31 +46,17 @@ export function NavigationBar() {
           gap={3}
           className='me-4'
         >
-          <Nav.Link
-            className="nav-link {% if nbar == 'dashboard' %}active{% endif %}"
-            aria-current='page'
-            href='#'
-          >
-            Dashboard
-          </Nav.Link>
-          <Nav.Link
-            className=''
-            href='#'
-          >
-            Watch Together
-          </Nav.Link>
-          <Nav.Link
-            className=''
-            href='#'
-          >
-            Stats
-          </Nav.Link>
-          <Nav.Link
-            className=''
-            href='#'
-          >
-            Logout
-          </Nav.Link>
+          {links.map((link, idx) => {
+            return (
+              <Link
+                key={idx}
+                href={link.url}
+                className={`nav-link ${activeLink(link.url)}`}
+              >
+                {link.text}
+              </Link>
+            )
+          })}
         </Stack>
       </Nav>
     </Navbar>

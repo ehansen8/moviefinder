@@ -169,6 +169,113 @@ function watch_together(e) {
   getRecommendations();
 }
 
+async function bookmark_movie(e) {
+  // Target is link w/ rating
+  const target = e.target.closest('button')
+
+  // Whatever was clicked was not a rating button
+  if (target == null || !target.classList.contains('save-movie')) {
+    return
+  }
+
+  const url = target.dataset.url
+  const movie_id = target.dataset.movieId
+
+  const payload = {
+    movie_id: movie_id
+  }
+  const json = JSON.stringify(payload)
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  reloadSubscribers()
+}
+
+
+async function rate_movie(e) {
+  // Target is link w/ rating
+  const target = e.target
+  const parent = target.closest('.rate-movie')
+
+  // Whatever was clicked was not a rating button
+  if (target == null || target.tagName != 'A' || !parent.classList.contains('rate-movie')) {
+    return
+  }
+
+  const rating = target.dataset.rating
+  const url = parent.dataset.url
+  const movie_id = parent.dataset.movieId
+  const payload = {
+    rating: rating,
+    movie_id: movie_id,
+  }
+
+  const json = JSON.stringify(payload)
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json',
+    },
+    body: json,
+  })
+
+  reloadSubscribers()
+}
+
+async function getWatchlist() {
+  const watchlist = document.querySelector('#watchlist')
+  const url = watchlist.dataset.url
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  const body = await response.text()
+  watchlist.innerHTML = body
+  initSwiper()
+}
+
+async function getRecommendations() {
+  const url = FILTER_FORM.dataset.url
+  const jsonForm = formToJSON(new FormData(FILTER_FORM))
+
+  const payload = {
+    ids: FRIEND_IDS,
+    form: jsonForm,
+    page: PAGE
+  }
+
+  const json = JSON.stringify(payload)
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json',
+    },
+    body: json,
+  })
+
+  const body = await response.text()
+  const recommendations = document.querySelector('#recommendations')
+
+  // Replace everything either way
+  recommendations.innerHTML = body
+  initSwiper()
+  getRecommendations();
+}
+
 function formToJSON(formData) {
   var object = { genres: [] };
   formData.forEach(function (value, key) {
@@ -185,3 +292,18 @@ function formToJSON(formData) {
   return object;
 }
 var currentModalTarget = void 0;
+
+async function getMovieDetail(e) {
+  const modalBody = document.querySelector('#movie-detail-modal .modal-body')
+  const url = e.target.dataset.url
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  const body = await response.text()
+  modalBody.innerHTML = body
+  initSwiper()
+}

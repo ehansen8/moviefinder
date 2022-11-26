@@ -26,7 +26,10 @@ export default function MovieSliderRow({ title, movies }: MovieSliderRowProps) {
       <div className='swiper-wrapper mb-2'>
         {movies.map((movie) => {
           return (
-            <div className='swiper-slide pe-2 col-lg-2 col-3'>
+            <div
+              key={movie.pk}
+              className='swiper-slide pe-2 col-lg-2 col-3'
+            >
               {/*% include 'movies/movie-poster-with-modal.html' % */}
               <MoviePosterWithModal movie={movie} />
               <div className='d-flex justify-content-between h6'>

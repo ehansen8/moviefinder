@@ -1,7 +1,9 @@
-import React from 'react'
+import { useState } from 'react'
 import { Movie } from '../types'
+import MovieDetailModal from './MovieDetailModal'
 
 export default function MoviePosterWithModal({ movie }: { movie: Movie }) {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   return (
     <div className='position-relative'>
       <img
@@ -10,14 +12,17 @@ export default function MoviePosterWithModal({ movie }: { movie: Movie }) {
         alt=''
         style={{ aspectRatio: 6 / 9 }}
       />
-      {/** //TODO: fix url stuff */}
+
       <a
+        onClick={() => setIsModalOpen(true)}
         href='#'
-        data-bs-toggle='modal'
-        data-bs-target='#movie-detail-modal'
         data-url="{% url 'movies:detail' movie_id=movie.pk %}"
         className='stretched-link'
       ></a>
+      <MovieDetailModal
+        isShowing={isModalOpen}
+        handleClose={() => setIsModalOpen(false)}
+      />
     </div>
   )
 }
