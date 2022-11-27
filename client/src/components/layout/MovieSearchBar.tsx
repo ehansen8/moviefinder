@@ -36,6 +36,7 @@ export function MovieSearchBar({ onSubmit }: SearchBarProps) {
           className='btn rounded btn-outline-light'
           type='submit'
           value='Post'
+          aria-label='submit search'
         >
           <i className='bi bi-search mx-2'></i>
         </button>

@@ -1,98 +1,9 @@
 import FilterFormModal from '../components/modals/FilterFormModal'
 import FriendsColumn from '../components/layout/FriendsColumn'
-import Layout from '../components/layout/Layout'
 import RecommendedMovieList, {
   Recommendation,
 } from '../components/_WatchTogether/RecommendedMovieList'
-import { Friend } from '../types'
-
-const friends: Friend[] = [
-  {
-    pk: 1,
-    first: 'Evan',
-    last: 'Hansen',
-  },
-  {
-    pk: 2,
-    first: 'Claire',
-    last: 'Martin',
-  },
-]
-
-const recommended: Recommendation[] = [
-  {
-    movie: {
-      pk: 1,
-      title: 'Top Gun',
-      rating: 2,
-      year: 2001,
-      genres: ['Crime', 'Horror'],
-      posterUrl:
-        'https://www.themoviedb.org/t/p/original/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
-      backdropUrl:
-        'https://www.themoviedb.org/t/p/original/qvZ91FwMq6O47VViAr8vZNQz3WI.jpg',
-    },
-    activeUsers: [
-      {
-        pk: 1,
-        first: 'Evan',
-        last: 'Hansen',
-        hasSaved: false,
-        hasWatched: false,
-      },
-      {
-        pk: 2,
-        first: 'Claire',
-        last: 'Martin',
-        hasSaved: true,
-        hasWatched: false,
-      },
-      {
-        pk: 3,
-        first: 'Test',
-        last: 'Test',
-        hasSaved: false,
-        hasWatched: true,
-      },
-    ],
-  },
-  {
-    movie: {
-      pk: 2,
-      title: 'bruh',
-      rating: 1,
-      year: 1983,
-      genres: ['Death', 'Comedy'],
-      posterUrl:
-        'https://www.themoviedb.org/t/p/original/sg7klpt1xwK1IJirBI9EHaqQwJ5.jpg',
-      backdropUrl:
-        'https://www.themoviedb.org/t/p/original/qvZ91FwMq6O47VViAr8vZNQz3WI.jpg',
-    },
-    activeUsers: [
-      {
-        pk: 1,
-        first: 'Evan',
-        last: 'Hansen',
-        hasSaved: false,
-        hasWatched: false,
-      },
-      {
-        pk: 2,
-        first: 'Claire',
-        last: 'Martin',
-        hasSaved: true,
-        hasWatched: false,
-      },
-      {
-        pk: 3,
-        first: 'Test',
-        last: 'Test',
-        hasSaved: false,
-        hasWatched: true,
-      },
-    ],
-  },
-]
+import { friends, recommended } from '../MockData'
 
 export default function WatchTogether() {
   return (

@@ -1,96 +1,17 @@
 import { useRef, useState, useLayoutEffect } from 'react'
 import FriendsColumn from '../components/layout/FriendsColumn'
 import MovieSliderRow from '../components/_Dashboard/MovieSliderRow'
-import RecentlySavedColumn from '../components/_WatchTogether/RecentlySavedColumn'
+import RecentlySavedColumn from '../components/_Dashboard/RecentlySavedColumn'
 import RecentlyWatchedColumn from '../components/_Dashboard/RecentlyWatchedColumn'
 import { Friend, Movie } from '../types'
 import Layout from '../components/layout/Layout'
 import { useRouter } from 'next/router'
-
-const friends: Friend[] = [
-  {
-    pk: 1,
-    first: 'Evan',
-    last: 'Hansen',
-  },
-  {
-    pk: 2,
-    first: 'Claire',
-    last: 'Martin',
-  },
-]
-
-const saved_movies: Movie[] = [
-  {
-    pk: 1,
-    title: 'Top Gun',
-    rating: 1,
-    year: 1000,
-  },
-  {
-    pk: 2,
-    title: 'bruh',
-    rating: 2,
-  },
-  {
-    pk: 3,
-    title: 'bruh',
-    rating: 3,
-  },
-  {
-    pk: 4,
-    title: 'bruh',
-    rating: 4,
-  },
-]
-
-const watched_movies: Movie[] = [
-  {
-    pk: 1,
-    title: 'Top Gun',
-    rating: 1,
-  },
-  {
-    pk: 2,
-    title: 'bruh',
-    rating: 2,
-  },
-  {
-    pk: 3,
-    title: 'bruh',
-    rating: 3,
-  },
-  {
-    pk: 4,
-    title: 'bruh',
-    rating: 4,
-  },
-]
-
-const popular_movies: Movie[] = [
-  {
-    pk: 1,
-    title: 'Top Gun',
-    rating: 2,
-    posterUrl:
-      'https://www.themoviedb.org/t/p/original/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
-    backdropUrl:
-      'https://www.themoviedb.org/t/p/original/qvZ91FwMq6O47VViAr8vZNQz3WI.jpg',
-    genres: ['horror, comedy'],
-    runtime: 45,
-  },
-  {
-    pk: 2,
-    title: 'bruh',
-    rating: 1,
-    posterUrl:
-      'https://www.themoviedb.org/t/p/original/sg7klpt1xwK1IJirBI9EHaqQwJ5.jpg',
-    backdropUrl:
-      'https://www.themoviedb.org/t/p/original/qvZ91FwMq6O47VViAr8vZNQz3WI.jpg',
-    genres: ['horror, comedy'],
-    runtime: 45,
-  },
-]
+import {
+  friends,
+  popular_movies,
+  saved_movies,
+  watched_movies,
+} from '../MockData'
 
 export const useBrowserLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : () => {}

@@ -1,4 +1,5 @@
 import { Movie } from '../../types'
+import { getRatingColor } from '../../utils/getRatingColor'
 
 type RecentlyWatchedColumnProps = {
   watched: Movie[]
@@ -17,21 +18,8 @@ export default function RecentlyWatchedColumn({
 
       <div className='list-group'>
         {watched.map(({ pk, title, rating }: Movie) => {
-          let color: string = ''
-          switch (rating) {
-            case 1:
-              color = 'danger'
-              break
-            case 2:
-              color = 'warning'
-              break
-            case 3:
-              color = 'primary'
-              break
-            default:
-              color = 'success'
-              break
-          }
+          const color = getRatingColor(rating)
+
           return (
             <a
               key={pk}
