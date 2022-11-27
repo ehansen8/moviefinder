@@ -1,8 +1,9 @@
-import React from 'react'
-import { Friend } from '../types'
+import { Friend } from '../../types'
+import Link from 'next/link'
+
 type FriendsColumnProps = {
   friends: Friend[]
-  handleClick?: () => void
+  handleClick?: (userId: number) => void
 }
 
 export default function FriendsColumn({
@@ -19,14 +20,14 @@ export default function FriendsColumn({
       <div className='btn-group-vertical text-center'>
         {friends.map(({ pk, first, last }) => {
           return (
-            <a
+            <Link
               key={pk}
-              onClick={handleClick}
-              href="{% url 'movies:user' user_id=friend.id  %}"
+              onClick={() => handleClick && handleClick(pk)}
+              href={`/user/${pk}`}
               className='btn btn-outline-dark'
             >
               {`${first} ${last}`}
-            </a>
+            </Link>
           )
         })}
       </div>

@@ -36,12 +36,13 @@ $grays: (
 
 
 .caret-off::before {
-  display: none;
+  display: none !important;
 }
 
 .caret-off::after {
-  display: none;
+  display: none !important;
 }
+
 
 @mixin gradient-y($start-color: $clear,
   $end-color: $gray-800,
@@ -62,4 +63,16 @@ $border-radius: .375em;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+}
+
+@import '../../node_modules/bootstrap/scss/bootstrap';
+
+.dropdown-item {
+
+  &:hover,
+  &:focus {
+    color: var(--#{$prefix}btn-hover-color);
+    text-decoration: if($link-hover-decoration ==underline, none, null);
+    @include gradient-bg(var(--#{$prefix}btn-hover-bg));
+  }
 }

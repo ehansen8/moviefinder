@@ -1,7 +1,5 @@
-import React from 'react'
-import { Friend, Movie } from '../types'
-import MovieCard from './MovieCard'
-import Pagination from './Pagination'
+import { Friend, Movie } from '../../types'
+import Pagination from '../layout/Pagination'
 import RecommendedMovie from './RecommendedMovie'
 
 type RecommendedMovieListProps = {

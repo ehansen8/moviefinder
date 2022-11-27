@@ -31,7 +31,7 @@
       <div class="d-flex justify-content-start flex-wrap">
         {% for movie in saved_movies %}
         <div class="col-lg-2 col-3 p-1">
-          {% include 'movies/movie-poster-with-modal.html' %}
+          {% include 'movies/migrated/movie-poster-with-modal.html' %}
           <div class="d-flex justify-content-between h6">
             <span class="text-truncate">{{ movie.title }}</span>
             <span class="ms-2"
@@ -50,7 +50,7 @@
         {% for rating in ratings %}
         {% with movie=rating.movie r=rating.rating %}
         <div class="col-lg-2 col-3 px-1 mb-1">
-          {% include 'movies/movie-poster-with-modal.html' %}
+          {% include 'movies/migrated/movie-poster-with-modal.html' %}
           <div class="d-flex flex-column h6">
             <div class="text-truncate">{{ movie.title }}</div>
             <div

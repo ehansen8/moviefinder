@@ -5,6 +5,10 @@ import '../sass/app.scss'
 import type { AppProps } from 'next/app'
 import Script from 'next/script'
 import Head from 'next/head'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import Layout from '../components/layout/Layout'
+
+const queryClient = new QueryClient()
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -19,7 +23,11 @@ export default function App({ Component, pageProps }: AppProps) {
       <Script src='https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js' />
       <Script src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js' />
       <Script src='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js' />
-      <Component {...pageProps} />
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </QueryClientProvider>
     </>
   )
 }

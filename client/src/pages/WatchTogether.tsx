@@ -1,11 +1,10 @@
-import React from 'react'
-import FilterFormModal from '../components/filterFormModal'
-import FriendsColumn from '../components/FriendsColumn'
-import Layout from '../components/Layout'
+import FilterFormModal from '../components/modals/FilterFormModal'
+import FriendsColumn from '../components/layout/FriendsColumn'
+import Layout from '../components/layout/Layout'
 import RecommendedMovieList, {
   Recommendation,
-} from '../components/RecommendedMovieList'
-import { Friend, Movie } from '../types'
+} from '../components/_WatchTogether/RecommendedMovieList'
+import { Friend } from '../types'
 
 const friends: Friend[] = [
   {
@@ -97,33 +96,34 @@ const recommended: Recommendation[] = [
 
 export default function WatchTogether() {
   return (
-    <Layout>
-      <div className='container-fluid d-flex flex-row justify-content-between'>
-        {/**<!-- This is the Recommendation Column--> */}
-        <div className='mt-2 col-sm-9 border-right border-2 border-dark d-flex flex-column me-2'>
-          <div className='d-flex justify-content-center bg-dark rounded shadow-sm'>
-            <div className='h-100 p-2'>
-              <h5 className='mb-0 text-white lh-100'>
-                Recommendations{' '}
-                <a
-                  href='#'
-                  className='link-light'
-                >
-                  <i className='bi bi-gear'></i>
-                </a>
-                {/**% include 'movies/filter-form-modal.html'% */}
-                <FilterFormModal />
-              </h5>
-            </div>
+    <div className='container-fluid d-flex flex-row justify-content-between'>
+      {/**<!-- This is the Recommendation Column--> */}
+      <div className='mt-2 col-sm-9 border-right border-2 border-dark d-flex flex-column me-2'>
+        <div className='d-flex justify-content-center bg-dark rounded shadow-sm'>
+          <div className='h-100 p-2'>
+            <h5 className='mb-0 text-white lh-100'>
+              Recommendations{' '}
+              <a
+                href='#'
+                className='link-light'
+              >
+                <i className='bi bi-gear'></i>
+              </a>
+              {/**% include 'movies/filter-form-modal.html'% */}
+              <FilterFormModal />
+            </h5>
           </div>
-          {/**% include 'movies/recommended-movie-list.html'% */}
-          <RecommendedMovieList recommendations={recommended} />
         </div>
-
-        <div className='mt-2 col-sm-3 border-left border-2 border-dark d-flex flex-column'>
-          <FriendsColumn friends={friends} />
-        </div>
+        {/**% include 'movies/recommended-movie-list.html'% */}
+        <RecommendedMovieList recommendations={recommended} />
       </div>
-    </Layout>
+
+      <div className='mt-2 col-sm-3 border-left border-2 border-dark d-flex flex-column'>
+        <FriendsColumn
+          friends={friends}
+          handleClick={() => {}}
+        />
+      </div>
+    </div>
   )
 }

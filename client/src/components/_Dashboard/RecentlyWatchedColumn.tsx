@@ -1,5 +1,4 @@
-import React from 'react'
-import { Movie } from '../types'
+import { Movie } from '../../types'
 
 type RecentlyWatchedColumnProps = {
   watched: Movie[]

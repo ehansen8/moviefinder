@@ -1,8 +1,7 @@
-import React from 'react'
-import { MovieSearchBar } from './MovieSearchBar'
 import { Navbar, Nav, Stack } from 'react-bootstrap'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { MovieSearchBar } from './MovieSearchBar'
 
 export function NavigationBar() {
   const router = useRouter()

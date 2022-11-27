@@ -45,7 +45,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "movies/dashboard-2.html",
+        "movies/migrated/dashboard-2.html",
         context=context,
     )
 
@@ -150,7 +150,7 @@ def watch_together(request: HttpRequest) -> HttpResponse:
         "nbar": "watch_together",
         "filter_form": form,
     }
-    return render(request, "movies/watch-together.html", context=get_context)
+    return render(request, "movies/migrated/watch-together.html", context=get_context)
 
 
 def rate(request: HttpRequest) -> HttpResponse:

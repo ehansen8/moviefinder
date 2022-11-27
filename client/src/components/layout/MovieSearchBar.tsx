@@ -1,6 +1,7 @@
 type SearchBarProps = {
   onSubmit: (event: React.FormEvent) => void
 }
+
 export function MovieSearchBar({ onSubmit }: SearchBarProps) {
   return (
     <form

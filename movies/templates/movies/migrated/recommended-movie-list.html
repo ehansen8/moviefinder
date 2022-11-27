@@ -4,7 +4,7 @@
 
 {% for movie in recommended_page %}
 <div class="col-sm-6 my-1">
-    {% include 'movies/movie-card.html' with movie=movie rank=forloop.counter%}
+    {% include 'movies/migrated/movie-card.html' with movie=movie rank=forloop.counter%}
     <div class="list-group list-group-horizontal text-center">
         {% for user in active_users %}
         {% user_has_saved user_id=user.pk movie=movie as has_saved %}

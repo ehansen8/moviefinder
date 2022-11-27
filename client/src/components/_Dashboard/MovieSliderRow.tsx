@@ -1,6 +1,5 @@
-import React from 'react'
-import { Movie } from '../types'
-import MoviePosterWithModal from './MoviePosterWithModal'
+import { Movie } from '../../types'
+import MoviePosterWithModal from '../movies/MoviePosterWithModal'
 
 type MovieSliderRowProps = {
   title: string

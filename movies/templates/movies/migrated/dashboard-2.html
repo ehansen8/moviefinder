@@ -89,7 +89,7 @@
           <!-- Movie Slides-->
           {% for movie in popular_movies%}
           <div class="swiper-slide pe-2 col-lg-2 col-3">
-            {% include 'movies/movie-poster-with-modal.html' %}
+            {% include 'movies/migrated/movie-poster-with-modal.html' %}
             <div class="d-flex justify-content-between h6">
               <span class="text-truncate">{{ movie.title }}</span>
               <span class="ms-2"
@@ -121,7 +121,7 @@
           <!-- Movie Slides-->
           {% for movie in upcoming_movies%}
           <div class="swiper-slide px-2 col-lg-2 col-3">
-            {% include 'movies/movie-poster-with-modal.html' %}
+            {% include 'movies/migrated/movie-poster-with-modal.html' %}
             <div class="d-flex justify-content-between h6">
               <span class="text-truncate">{{ movie.title }}</span>
               <span class="ms-2"
@@ -155,7 +155,7 @@
           <!-- Movie Slides-->
           {% for movie in now_playing_movies%}
           <div class="swiper-slide px-2 col-lg-2 col-3">
-            {% include 'movies/movie-poster-with-modal.html' %}
+            {% include 'movies/migrated/movie-poster-with-modal.html' %}
             <div class="d-flex justify-content-between h6">
               <span class="text-truncate">{{ movie.title }}</span>
               <span class="ms-2"

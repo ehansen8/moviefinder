@@ -1,15 +1,18 @@
-import React from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import { Movie } from '../../types'
+import MovieDetailBody from '../movies/MovieDetailBody'
 
 type MovieDetailModalProps = {
   isShowing: boolean
   handleClose: () => void
+  movie: Movie
 }
 
 export default function MovieDetailModal({
   isShowing,
   handleClose,
+  movie,
 }: MovieDetailModalProps) {
   return (
     <Modal
@@ -18,7 +21,14 @@ export default function MovieDetailModal({
       onHide={handleClose}
       size='lg'
     >
-      <Modal.Body className=''>Hello Random Text</Modal.Body>
+      <Modal.Body className=''>
+        {isShowing && (
+          <MovieDetailBody
+            movie={movie}
+            handleClose={handleClose}
+          />
+        )}
+      </Modal.Body>
       <Modal.Footer>
         <Button
           variant='outline-light'

@@ -1,6 +1,5 @@
-import React from 'react'
-import { Movie } from '../types'
-import { Recommendation } from './RecommendedMovieList'
+import { Movie } from '../../types'
+import RatingDropdownMenu from './RatingDropdownMenu'
 type MovieCardProps = {
   movie: Movie
   rank: number
@@ -31,7 +30,7 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
                 {`${rank}. ${movie.title}`}
               </h6>
               <small className='card-text text-white'>
-                {movie.genres.join(', ')} &bull; {movie.year}
+                {movie.genres?.join(', ')} &bull; {movie.year}
               </small>
             </div>
             <div className='btn-group h-50 align-self-end'>
@@ -60,38 +59,7 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
                 >
                   <i className='bi bi-check2'></i>
                 </button>
-                <div className='dropdown-menu p-0'>
-                  <div className='btn-group'>
-                    <a
-                      className='btn btn-outline-danger dropdown-item'
-                      href='#'
-                      data-rating='1'
-                    >
-                      Awful
-                    </a>
-                    <a
-                      className='btn btn-outline-warning dropdown-item'
-                      href='#'
-                      data-rating='2'
-                    >
-                      Meh
-                    </a>
-                    <a
-                      className='btn btn-outline-success dropdown-item'
-                      href='#'
-                      data-rating='3'
-                    >
-                      Good
-                    </a>
-                    <a
-                      className='btn btn-outline-primary dropdown-item'
-                      href='#'
-                      data-rating='4'
-                    >
-                      Amazing
-                    </a>
-                  </div>
-                </div>
+                <RatingDropdownMenu />
               </div>
             </div>
           </div>

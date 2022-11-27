@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Movie } from '../types'
-import MovieDetailModal from './MovieDetailModal'
+import { Movie } from '../../types'
+import MovieDetailModal from '../modals/MovieDetailModal'
 
 export default function MoviePosterWithModal({ movie }: { movie: Movie }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -20,6 +20,7 @@ export default function MoviePosterWithModal({ movie }: { movie: Movie }) {
         className='stretched-link'
       ></a>
       <MovieDetailModal
+        movie={movie}
         isShowing={isModalOpen}
         handleClose={() => setIsModalOpen(false)}
       />

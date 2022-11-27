@@ -1,7 +1,7 @@
-import React from 'react'
-import { Friend, Movie } from '../types'
-import MovieCard from './MovieCard'
+import { Friend } from '../../types'
+import MovieCard from '../movies/MovieCard'
 import { Recommendation } from './RecommendedMovieList'
+
 type RecommendedMovieProps = {
   recommendation: Recommendation
   rank: number
